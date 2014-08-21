@@ -27,7 +27,7 @@ parser = OptionParser(option_class=MultipleOption, usage="usage: %prog [todo_fil
 parser.add_option('-t', '--todo', dest="new_tasks", action="extend", metavar="ITEM", help="new item to add to todo list")
 parser.add_option('-d', '--display', dest="show_tasks", action="store_true", help="list items on the todo list")
 parser.add_option('-s', '--status', dest="status", help="update or select a status")
-parser.add_option('-j', '--job', dest="job", type="int", help="job to do something with")
+parser.add_option('-j', '--job', dest="job", type="string", help="job to do something with")
 parser.add_option('-c', '--closes-job', dest="job_closed", action="store_true", help="status update closes the todo list item (use with -s)")
 parser.add_option('-a', '--show-all', dest="show_all", action="store_true", help="Whether to show all tasks, or only the pending ones")
 parser.add_option('-r', '--remove', dest="remove", action="store_true", help="remove the selected job or status")
@@ -37,6 +37,14 @@ parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a 
 parser.add_option('', '--log', dest="log_distance", metavar="DAYS", help="show the last DAYS worth of statuses")
 
 (options, args) = parser.parse_args()
+
+# process job flag
+if options.job != None:
+    try:
+        options.job = [int(x) for x in options.job.split(',')]
+    except (e):
+        print "Invalid -j syntax, should be <int>[,<int>[,<int>...]]"
+        options.job = None
 
 # configuration
 if len(args) > 0:
@@ -191,26 +199,27 @@ def main(storeData):
         if 'tasks' not in storeData:
             print "No tasks to delete!"
         elif options.job != None:
-            if options.job < len(storeData['tasks']):
-                if options.status:
-                    if options.status.isdigit():
-                        if 'statuses' in storeData['tasks'][options.job] and storeData['tasks'][options.job]['statuses']:
-                            del storeData['tasks'][options.job]['statuses'][int(options.status)]
+            for job in options.job:
+                if job < len(storeData['tasks']):
+                    if options.status:
+                        if options.status.isdigit():
+                            if 'statuses' in storeData['tasks'][job] and storeData['tasks'][job]['statuses']:
+                                del storeData['tasks'][job]['statuses'][int(options.status)]
+                                changedData = True
+                            else:
+                                print "No statuses to delete!"
+                        else:
+                            print "With -r, -s must give a numeric ID of a status, other value given"
+                    else:
+                        print 'Are you sure you want to delete task %d: "%s"?' % (job, task_short_name(job))
+                        if raw_input().lower() in ['yes', 'y', 'sure', 'ok', '1']:
+                            del storeData['tasks'][job]
+                            print "Successfully deleted job %d!" % job
                             changedData = True
                         else:
-                            print "No statuses to delete!"
-                    else:
-                        print "With -r, -s must give a numeric ID of a status, other value given"
+                            print "Held off.  Didn't delete job."
                 else:
-                    print 'Are you sure you want to delete task %d: "%s"?' % (options.job, task_short_name(options.job))
-                    if raw_input().lower() in ['yes', 'y', 'sure', 'ok', '1']:
-                        del storeData['tasks'][options.job]
-                        print "Successfully deleted job %d!" % options.job
-                        changedData = True
-                    else:
-                        print "Held off.  Didn't delete job."
-            else:
-                print INVALID_JOB_MESSAGE
+                    print INVALID_JOB_MESSAGE
         else:
             print "You must specify which job you're talking about with -j"
         usedOptions = True
@@ -218,13 +227,15 @@ def main(storeData):
         if options.job != None:
             if 'tasks' not in storeData:
                 print "You must enter some todo list items before updating a todo list item status"
-            elif options.job < len(storeData['tasks']):
-                if 'statuses' not in storeData['tasks'][options.job]:
-                    storeData['tasks'][options.job]['statuses'] = []
-                storeData['tasks'][options.job]['statuses'].insert(0,{"status": options.status if options.status else 'closed', "dt": datetime.now(), "closes": options.job_closed if options.job_closed != None else False})
-                changedData = True
             else:
-                print INVALID_JOB_MESSAGE
+                for job in options.job:
+                    if job < len(storeData['tasks']):
+                        if 'statuses' not in storeData['tasks'][job]:
+                            storeData['tasks'][job]['statuses'] = []
+                        storeData['tasks'][job]['statuses'].insert(0,{"status": options.status if options.status else 'closed', "dt": datetime.now(), "closes": options.job_closed if options.job_closed != None else False})
+                        changedData = True
+                    else:
+                        print INVALID_JOB_MESSAGE
         else:
             print "(-s) You must specify what job you're talking about with -j"
         usedOptions = True
@@ -232,32 +243,34 @@ def main(storeData):
         if options.job != None:
             if 'tasks' not in storeData or not storeData['tasks']:
                 print "No tasks to schedule!"
-            elif options.job < len(storeData['tasks']):
-                if 'repeats' in storeData and storeData['repeats']:
-                    m = re.match('(.*)\s*\(([^\)]+)\)$', options.job_schedule)
-                    if not m:
-                        print INVALID_JOB_SCHEDULE_FORMAT
-                    else:
-                        dt = parse(m.group(1)) if len(m.group(1)) > 0 else None
-                        if m.group(2) not in [x['name'] for x in storeData['repeats']]:
-                            print "Invalid repeat specifier '%s'. Use -l to list options." % m.group(2)
-                        else:
-                            if 'schedules' not in storeData['tasks'][options.job]:
-                                storeData['tasks'][options.job]['schedules'] = []
-                            repeat = None
-                            for r in storeData['repeats']:
-                                if r['name'] == m.group(2):
-                                    repeat = r
-                                    break
-                            record = {'repeat': repeat}
-                            if dt:
-                                record['start_dt'] = dt
-                            storeData['tasks'][options.job]['schedules'].append(record)
-                            changedData = True
-                else:
-                    print "You can't specify a job's repetition without specifying any repeats!  Add one first."
             else:
-                print INVALID_JOB_MESSAGE
+                for job in options.job:
+                    if job < len(storeData['tasks']):
+                        if 'repeats' in storeData and storeData['repeats']:
+                            m = re.match('(.*)\s*\(([^\)]+)\)$', options.job_schedule)
+                            if not m:
+                                print INVALID_JOB_SCHEDULE_FORMAT
+                            else:
+                                dt = parse(m.group(1)) if len(m.group(1)) > 0 else None
+                                if m.group(2) not in [x['name'] for x in storeData['repeats']]:
+                                    print "Invalid repeat specifier '%s'. Use -l to list options." % m.group(2)
+                                else:
+                                    if 'schedules' not in storeData['tasks'][job]:
+                                        storeData['tasks'][job]['schedules'] = []
+                                    repeat = None
+                                    for r in storeData['repeats']:
+                                        if r['name'] == m.group(2):
+                                            repeat = r
+                                            break
+                                    record = {'repeat': repeat}
+                                    if dt:
+                                        record['start_dt'] = dt
+                                    storeData['tasks'][job]['schedules'].append(record)
+                                    changedData = True
+                        else:
+                            print "You can't specify a job's repetition without specifying any repeats!  Add one first."
+                    else:
+                        print INVALID_JOB_MESSAGE
         else:
             print "(-S) You must specify what job you want to schedule with -j"
         usedOptions = True
@@ -301,17 +314,18 @@ def main(storeData):
             print 'No tasks to show!'
         else:
             if options.job != None:
-                if options.job < len(storeData['tasks']):
-                    print 'Task %d: "%s":' % (options.job, task_short_name(options.job))
-                    if 'statuses' in storeData['tasks'][options.job]:
-                        storeData['tasks'][options.job]['statuses'] = sorted(storeData['tasks'][options.job]['statuses'], key=lambda x: x['dt'], reverse=True)
-                        for status in storeData['tasks'][options.job]['statuses']:
-                            print "({1}) ({0:%m/%d/%y %I:%M%p}) {3} {2}".format(status['dt'], storeData['tasks'][options.job]['statuses'].index(status), status['status'] if 'status' in status else '', '*' if 'closes' in status and status['closes'] else ' ')
-                        changedData = True # make sure our order gets saved, because we like it
+                for job in options.job:
+                    if job < len(storeData['tasks']):
+                        print 'Task %d: "%s":' % (job, task_short_name(job))
+                        if 'statuses' in storeData['tasks'][job]:
+                            storeData['tasks'][job]['statuses'] = sorted(storeData['tasks'][job]['statuses'], key=lambda x: x['dt'], reverse=True)
+                            for status in storeData['tasks'][job]['statuses']:
+                                print "({1}) ({0:%m/%d/%y %I:%M%p}) {3} {2}".format(status['dt'], storeData['tasks'][job]['statuses'].index(status), status['status'] if 'status' in status else '', '*' if 'closes' in status and status['closes'] else ' ')
+                            changedData = True # make sure our order gets saved, because we like it
+                        else:
+                            print "No statuses to show for that job!"
                     else:
-                        print "No statuses to show for that job!"
-                else:
-                    print INVALID_JOB_MESSAGE
+                        print INVALID_JOB_MESSAGE
             else:
                 print "Tasks:"
                 # sort tasks
