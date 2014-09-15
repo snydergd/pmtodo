@@ -188,6 +188,7 @@ def preprocess_data(storeData):
 def main(storeData):
     usedOptions = False
     changedData = False
+    # new task
     if options.new_tasks:
         if 'tasks' not in storeData:
             storeData['tasks'] = []
@@ -196,6 +197,7 @@ def main(storeData):
             print "Added (%s) as job id %d" % (task, len(storeData['tasks'])-1)
             changedData = True
         usedOptions = True
+    # remove task
     if options.remove:
         if 'tasks' not in storeData:
             print "No tasks to delete!"
@@ -224,6 +226,7 @@ def main(storeData):
         else:
             print "You must specify which job you're talking about with -j"
         usedOptions = True
+    # update status of, or close, job
     elif options.status or options.job_closed:
         if options.job != None:
             if 'tasks' not in storeData:
@@ -240,6 +243,7 @@ def main(storeData):
         else:
             print "(-s) You must specify what job you're talking about with -j"
         usedOptions = True
+    # schedule a job
     if options.job_schedule:
         if options.job != None:
             if 'tasks' not in storeData or not storeData['tasks']:
@@ -275,6 +279,7 @@ def main(storeData):
         else:
             print "(-S) You must specify what job you want to schedule with -j"
         usedOptions = True
+    # create repeat
     if options.new_repeat:
         if 'repeats' not in storeData:
             storeData['repeats'] = []
@@ -287,6 +292,7 @@ def main(storeData):
             storeData['repeats'].append(record)
             changedData = True
         usedOptions = True
+    # show repeats
     if options.list_repeats:
         print "Repeats:"
         if 'repeats' in storeData and storeData['repeats']:
@@ -295,6 +301,7 @@ def main(storeData):
         else:
             print "No repeats to list!"
         usedOptions = True
+    # show statuses log
     if options.log_distance:
         statusCount = 0
         print "Past statuses:"
@@ -310,10 +317,12 @@ def main(storeData):
                     print list[0:-1]
         print "%d things done in the last %s days." % (statusCount, options.log_distance)
         usedOptions = True
+    # show jobs
     if not usedOptions or options.show_tasks:
         if 'tasks' not in storeData:
             print 'No tasks to show!'
         else:
+            # show specific job
             if options.job != None:
                 for job in options.job:
                     if job < len(storeData['tasks']):
@@ -327,6 +336,7 @@ def main(storeData):
                             print "No statuses to show for that job!"
                     else:
                         print INVALID_JOB_MESSAGE
+            # show all jobs
             else:
                 print "Tasks:"
                 # sort tasks
