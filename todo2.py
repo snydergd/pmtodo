@@ -326,11 +326,21 @@ def main(storeData):
             if options.job != None:
                 for job in options.job:
                     if job < len(storeData['tasks']):
+                        # show job name
                         print 'Task %d: "%s":' % (job, task_short_name(job))
+                        
+                        # show repeats
+                        if 'schedules' in storeData['tasks'][job]:
+                            print "- Schedules:"
+                            for schedule in storeData['tasks'][job]['schedules']:
+                                print '    ' + repeat_description(schedule['repeat'])
+                        
+                        # show statuses
                         if 'statuses' in storeData['tasks'][job]:
                             storeData['tasks'][job]['statuses'] = sorted(storeData['tasks'][job]['statuses'], key=lambda x: x['dt'], reverse=True)
+                            print "- Events:"
                             for status in storeData['tasks'][job]['statuses']:
-                                print "({1}) ({0:%m/%d/%y %I:%M%p}) {3} {2}".format(status['dt'], storeData['tasks'][job]['statuses'].index(status), status['status'] if 'status' in status else '', '*' if 'closes' in status and status['closes'] else ' ')
+                                print "    ({1}) ({0:%m/%d/%y %I:%M%p}) {3} {2}".format(status['dt'], storeData['tasks'][job]['statuses'].index(status), status['status'] if 'status' in status else '', '*' if 'closes' in status and status['closes'] else ' ')
                             changedData = True # make sure our order gets saved, because we like it
                         else:
                             print "No statuses to show for that job!"
