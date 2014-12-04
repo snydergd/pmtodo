@@ -34,7 +34,7 @@ parser.add_option('-a', '--show-all', dest="show_all", action="store_true", help
 parser.add_option('-r', '--remove', dest="remove", action="store_true", help="remove the selected job or status")
 parser.add_option('', '--add-repeat', dest="new_repeat", help='create a repeat (use format "name (<n>-<year|month|week|day|hour|minute>[, ...])")')
 parser.add_option('-l', '--list-repeats', dest="list_repeats", action="store_true", help='show a list of current repeats to use in scheduling')
-parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a "[start_date ](repeat name)" for a -j')
+parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a "start_date (repeat name)" for a -j')
 parser.add_option('', '--log', dest="log_distance", metavar="DAYS", help="show the last DAYS worth of statuses")
 
 (options, args) = parser.parse_args()
