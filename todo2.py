@@ -348,7 +348,7 @@ def main(storeData):
                         print INVALID_JOB_MESSAGE
             # show all jobs
             else:
-                print "Tasks:"
+                print "Tasks as of %s:" % str(date.today())
                 # sort tasks
                 def taskCmp(left, right):
                     if task_closed(left)-task_closed(right) == 0:
