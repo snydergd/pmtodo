@@ -36,6 +36,7 @@ parser.add_option('', '--add-repeat', dest="new_repeat", help='create a repeat (
 parser.add_option('-l', '--list-repeats', dest="list_repeats", action="store_true", help='show a list of current repeats to use in scheduling')
 parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a "start_date (repeat name)" for a -j')
 parser.add_option('', '--log', dest="log_distance", metavar="DAYS", help="show the last DAYS worth of statuses")
+parser.add_option('', '--short', dest="short_output", action="store_true", help="Dump a simple output consisting of just the tasks")
 
 (options, args) = parser.parse_args()
 
@@ -318,7 +319,7 @@ def main(storeData):
         print "%d things done in the last %s days." % (statusCount, options.log_distance)
         usedOptions = True
     # show jobs
-    if not usedOptions or options.show_tasks:
+    if not usedOptions or options.show_tasks or options.short_output:
         if 'tasks' not in storeData:
             print 'No tasks to show!'
         else:
@@ -380,7 +381,10 @@ def main(storeData):
                         for schedule in task['schedules']:
                             repeats += schedule['repeat']['name'] + ","
                         repeats = repeats[:-1] + ')'
-                    print "({1: >3}) ({0:%m/%d/%y}) {3} {2}".format(last_status(task)['dt'] if last_status(task) else task['dt'], storeData['tasks'].index(task), task['t'], '*' if task_closed(task) else ' '), "({0} -- {1:%m/%d/%y})".format(l['status'] if 'status' in l else '', l['dt']) if l != None else repeats
+                    if options.short_output:
+                        print task['t'].replace('\n', '\n\t')
+                    else:
+                        print "({1: >3}) ({0:%m/%d/%y}) {3} {2}".format(last_status(task)['dt'] if last_status(task) else task['dt'], storeData['tasks'].index(task), task['t'], '*' if task_closed(task) else ' '), "({0} -- {1:%m/%d/%y})".format(l['status'] if 'status' in l else '', l['dt']) if l != None else repeats
     return changedData
 
 # execution start
