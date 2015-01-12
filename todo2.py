@@ -1,5 +1,6 @@
 #!/bin/env python
 
+import display # local module
 import yaml
 import re
 import sys
@@ -37,6 +38,7 @@ parser.add_option('-l', '--list-repeats', dest="list_repeats", action="store_tru
 parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a "start_date (repeat name)" for a -j')
 parser.add_option('', '--log', dest="log_distance", metavar="DAYS", help="show the last DAYS worth of statuses")
 parser.add_option('', '--short', dest="short_output", action="store_true", help="Dump a simple output consisting of just the tasks")
+parser.add_option('', '--pm', dest="pm_only", action="store_true", help="When combined with --log, show only completed repeating tasks (preventative maintenance)")
 
 (options, args) = parser.parse_args()
 
@@ -61,6 +63,14 @@ INVALID_JOB_SCHEDULE_FORMAT = "Invalid job schedule format.  See help for -S"
 def task_closed(task):
     stat = last_status(task)
     return stat['closes'] if stat and 'closes' in stat else False
+def task_repeats(task):
+    if not 'schedules' in task: return False
+    ok = False
+    for schedule in task['schedules']:
+        if 'repeat' in schedule:
+            for field in ['week', 'month', 'year', 'day']:
+                if field in schedule['repeat'] and schedule['repeat'][field] > 0: ok = True
+    return ok
 def last_status(task):
     if 'statuses' in task and task['statuses']:
         return max(task['statuses'], key=lambda x: x['dt'])
@@ -307,15 +317,24 @@ def main(storeData):
         statusCount = 0
         print "Past statuses:"
         for task in storeData['tasks']:
-            if 'statuses' in task and len(task['statuses']) > 0:
-                list = ""
+            if 'statuses' in task and len(task['statuses']) > 0 and ((not options.pm_only) or task_repeats(task)):
+                list = "\t\t" if options.pm_only else ""
+                allEvents = []
+                statusIndex = 1
                 for status in task['statuses']:
-                    if status['dt'] > (datetime.now()-relativedelta(days=int(options.log_distance))):
-                        list += "\t\t(%s) %s\n" % (str(status['dt']), status['status'])
+                    if status['dt'] > (datetime.now()-relativedelta(days=int(options.log_distance))) and ((not options.pm_only) or ('closes' in status and status['closes'] == True)):
+                        if options.pm_only:
+                            list += "{0:%m-%d-%y},  ".format(status['dt'])
+                            if (statusIndex % 6 == 0): list += "\n\t\t"
+                            statusIndex += 1
+                            allEvents.append(status['dt'])
+                        else:
+                            list += "\t\t(%s) %s\n" % (str(status['dt']), status['status'] if 'status' in status else ('done' if 'closes' in status and status['closes'] == True else ''))
                         statusCount += 1
                 if list != "":
-                    print "\t%s" % task['t']
+                    print "\t%s" % task['t'].replace('\n', '\n\t')
                     print list[0:-1]
+                if options.pm_only: display.aDate(allEvents)
         print "%d things done in the last %s days." % (statusCount, options.log_distance)
         usedOptions = True
     # show jobs
