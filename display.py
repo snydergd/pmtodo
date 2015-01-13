@@ -3,11 +3,13 @@
 from datetime import date, timedelta
 from math import ceil
 
+def monthAfter(m):
+    return date(m.year + (1 if m.month == 12 else 0), (m.month + 1) if m.month < 12 else 1, 1)
 def aDate(dates):
     dates.sort()
-    cal = [' ' for x in range((dates[-1]-dates[0]).days+1)]
+    cal = [' ' for x in range((dates[-1]-dates[0]).days+2)]
     for i in range(len(dates)):
-        cal[(dates[i]-dates[0]).days] = 'X'
+        cal[(date(dates[i].year, dates[i].month, dates[i].day)-date(dates[0].year, dates[0].month, dates[0].day)).days] = 'X'
     
     # add compute values for each calendar position
     name_spacing = []
@@ -27,15 +29,23 @@ def aDate(dates):
         d = d + inc
 
     # display
-#    print name_spacing
-    labels = ''
-    d = dates[0]
-    for i in range(len(name_spacing)+1):
-        labels += ('%' + (str(int(name_spacing[i])) if i < len(name_spacing) else '') + 's') % d.strftime('%b')
-        d = date(d.year if d.month < 12 else d.year+1, d.month+1 if d.month < 12 else 1, 1)
-#    print labels
+    labels = [' ' for x in range((int(ceil(len(cal)/7)+1)*2)+4)]
+    m = monthAfter(date(dates[0].year, dates[0].month, 1))
     for i in range(6, -1, -1):
         line = ''
         for j in range(i-dates[0].weekday()-1, len(cal), 7):
-            line += cal[j] if j >= 0 else '  '
+            if j >= 0:
+                line += cal[j]
+                if len(cal[j]) > 1 and cal[j][1] == '_' and (j+7 >= len(cal) or len(cal[j+7]) <= 1 or cal[j+7][1] != '_'):
+                    base = int((j-(j%7))/7)*2
+                    mn = m.strftime("%b" + str(i))
+                    for k in range(len(mn)):
+                        labels[base+k] = mn[k]
+                    if base < 3:
+                        for l in range(0, base):
+                            labels[l] = ' '
+                    m = monthAfter(m)
+                    print "movingToNext"
+            else: line += '  '
         print line
+    print ''.join(labels)
