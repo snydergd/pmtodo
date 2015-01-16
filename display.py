@@ -1,10 +1,23 @@
 #!/usr/bin/python27
 
 from datetime import date, timedelta
+from calendar import monthrange
 from math import ceil
 
-def monthAfter(m):
-    return date(m.year + (1 if m.month == 12 else 0), (m.month + 1) if m.month < 12 else 1, 1)
+def incMonth(d, months):
+    year = int(months/12)
+    month = months % 12 + d.month
+    if month > 12:
+        year += 1
+        month -= 12
+    day = d.day
+    if day > monthrange(year, month)[1]:
+        day -= monthrange(year, month)[1]
+        month += 1
+        if month > 12:
+            year += 1
+            month = 1
+    return date(year, month, day)
 def aDate(dates):
     dates.sort()
     cal = [' ' for x in range((dates[-1]-dates[0]).days+2)]
@@ -30,22 +43,20 @@ def aDate(dates):
 
     # display
     labels = [' ' for x in range((int(ceil(len(cal)/7)+1)*2)+4)]
-    m = monthAfter(date(dates[0].year, dates[0].month, 1))
     for i in range(6, -1, -1):
         line = ''
         for j in range(i-dates[0].weekday()-1, len(cal), 7):
             if j >= 0:
                 line += cal[j]
                 if len(cal[j]) > 1 and cal[j][1] == '_' and (j+7 >= len(cal) or len(cal[j+7]) <= 1 or cal[j+7][1] != '_'):
-                    base = int((j-(j%7))/7)*2
-                    mn = m.strftime("%b" + str(i))
+                    base = int(ceil((j+2)/7)*2)
+                    m = (dates[0] + timedelta(j))
+                    mn = m.strftime("%b")
                     for k in range(len(mn)):
                         labels[base+k] = mn[k]
                     if base < 3:
                         for l in range(0, base):
                             labels[l] = ' '
-                    m = monthAfter(m)
-                    print "movingToNext"
             else: line += '  '
         print line
     print ''.join(labels)

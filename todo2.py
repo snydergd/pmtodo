@@ -99,6 +99,14 @@ def repeat_description(repeat):
             started = True
             lastUsed = 1
     return ret + "the start date"
+def repeat_list(task):
+    if not 'schedules' in task: return ''
+    ret = ''
+    for schedule in task['schedules']:
+        if 'repeat' in schedule:
+            if len(ret) > 0: ret += ", "
+            ret += schedule['repeat']['name']
+    return ret
 def preprocess_data(storeData):
     changedData = False
     if 'tasks' not in storeData:
@@ -332,9 +340,10 @@ def main(storeData):
                             list += "\t\t(%s) %s\n" % (str(status['dt']), status['status'] if 'status' in status else ('done' if 'closes' in status and status['closes'] == True else ''))
                         statusCount += 1
                 if list != "":
-                    print "\t%s" % task['t'].replace('\n', '\n\t')
+                    print "\t%s (%s)" % (task['t'].replace('\n', '\n\t'), repeat_list(task))
                     print list[0:-1]
-                if options.pm_only: display.aDate(allEvents)
+                    if options.pm_only: display.aDate(allEvents)
+                allEvents.append(datetime.now())
         print "%d things done in the last %s days." % (statusCount, options.log_distance)
         usedOptions = True
     # show jobs
