@@ -39,6 +39,7 @@ parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a 
 parser.add_option('', '--log', dest="log_distance", metavar="DAYS", help="show the last DAYS worth of statuses")
 parser.add_option('', '--short', dest="short_output", action="store_true", help="Dump a simple output consisting of just the tasks")
 parser.add_option('', '--pm', dest="pm_only", action="store_true", help="When combined with --log, show only completed repeating tasks (preventative maintenance)")
+parser.add_option('', '--old', dest="old_status", metavar="DATE", help="To be used with -s or -c, gives the date it happened (for missed records)")
 
 (options, args) = parser.parse_args()
 
@@ -251,11 +252,19 @@ def main(storeData):
             if 'tasks' not in storeData:
                 print "You must enter some todo list items before updating a todo list item status"
             else:
+                if options.old_status:
+                    options.old_status = parse(options.old_status)
                 for job in options.job:
                     if job < len(storeData['tasks']):
                         if 'statuses' not in storeData['tasks'][job]:
                             storeData['tasks'][job]['statuses'] = []
-                        storeData['tasks'][job]['statuses'].insert(0,{"status": options.status if options.status else 'closed', "dt": datetime.now(), "closes": options.job_closed if options.job_closed != None else False})
+                        position = 0
+                        if options.old_status:
+                            for i in range(len(storeData['tasks'][job]['statuses'])):
+                                if storeData['tasks'][job]['statuses'][i]['dt'] < options.old_status:
+                                    position = i
+                                    break
+                        storeData['tasks'][job]['statuses'].insert(position,{"status": options.status if options.status else 'closed', "dt": datetime.now() if not options.old_status else options.old_status, "closes": options.job_closed if options.job_closed != None else False})
                         changedData = True
                     else:
                         print INVALID_JOB_MESSAGE
@@ -340,7 +349,7 @@ def main(storeData):
                             list += "\t\t(%s) %s\n" % (str(status['dt']), status['status'] if 'status' in status else ('done' if 'closes' in status and status['closes'] == True else ''))
                         statusCount += 1
                 if list != "":
-                    print "\t%s (%s)" % (task['t'].replace('\n', '\n\t'), repeat_list(task))
+                    print " \t%d %s (%s)" % (storeData['tasks'].index(task), task['t'].replace('\n', '\n\t'), repeat_list(task))
                     print list[0:-1]
                     allEvents.append(datetime.now())
                     if options.pm_only: display.aDate(allEvents)
