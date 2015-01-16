@@ -342,8 +342,8 @@ def main(storeData):
                 if list != "":
                     print "\t%s (%s)" % (task['t'].replace('\n', '\n\t'), repeat_list(task))
                     print list[0:-1]
+                    allEvents.append(datetime.now())
                     if options.pm_only: display.aDate(allEvents)
-                allEvents.append(datetime.now())
         print "%d things done in the last %s days." % (statusCount, options.log_distance)
         usedOptions = True
     # show jobs
