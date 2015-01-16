@@ -349,7 +349,7 @@ def main(storeData):
                             list += "\t\t(%s) %s\n" % (str(status['dt']), status['status'] if 'status' in status else ('done' if 'closes' in status and status['closes'] == True else ''))
                         statusCount += 1
                 if list != "":
-                    print " \t%d %s (%s)" % (storeData['tasks'].index(task), task['t'].replace('\n', '\n\t'), repeat_list(task))
+                    print " \t#%d %s (%s)" % (storeData['tasks'].index(task), task['t'].replace('\n', '\n\t'), repeat_list(task))
                     print list[0:-1]
                     allEvents.append(datetime.now())
                     if options.pm_only: display.aDate(allEvents)
