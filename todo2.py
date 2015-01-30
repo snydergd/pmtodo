@@ -371,7 +371,7 @@ def main(storeData):
                         if 'schedules' in storeData['tasks'][job]:
                             print "- Schedules:"
                             for schedule in storeData['tasks'][job]['schedules']:
-                                print '    ' + repeat_description(schedule['repeat'])
+                                print '    ' + repeat_description(schedule['repeat']) + " (%s)" % schedule['start_dt']
                         
                         # show statuses
                         if 'statuses' in storeData['tasks'][job]:
@@ -415,8 +415,13 @@ def main(storeData):
                     repeats = '(one-time)'
                     if l == None and 'schedules' in task:
                         repeats = '(done '
+                        already_started = False
                         for schedule in task['schedules']:
+                            if schedule['start_dt'] <= datetime.today():
+                                already_started = True
                             repeats += schedule['repeat']['name'] + ","
+                        if not already_started:
+                            continue
                         repeats = repeats[:-1] + ')'
                     if options.short_output:
                         print task['t'].replace('\n', '\n\t')
