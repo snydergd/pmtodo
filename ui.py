@@ -15,6 +15,24 @@ class BackendInterface:
         item_ids = sorted(task_ids, reverse=True)
         for item in item_ids:
             del BackendInterface.stuff[item]
+    @staticmethod
+    def saveTask(data):
+        if not 'id' in data:
+            return False
+        
+        for item in BackendInterface.stuff:
+            if item['id'] == data['id']:
+                for key, value in data.iteritems():
+                    item[key] = value
+        return True
+    @staticmethod
+    def getTask(data):
+        # TODO: check for more than just ID, and prepare for if there isn't one
+        for item in BackendInterface.stuff:
+            if item['id'] == data['id']:
+                return item
+        return False
+            
 
 class MainWindow(QWidget):
     def __init__(self, backendInterface):
@@ -55,8 +73,21 @@ class MainWindow(QWidget):
             del self.dataForItem[i]
         self.backendInterface.completeTasks(vals)
     def modifyButtonPushed(self, event):
-        self.taskModWindow = TaskProperties(self.backendInterface, self.getFirstChecked())
-        self.taskModWindow.show()
+        task = self.getFirstChecked()
+        if task == False:
+            # TODO: change just return once out of debug
+            task = 0
+        i = 0
+        checkedTasks = []
+        while (self.taskModel.item(i)):
+            if self.taskModel.item(i).checkState():
+                checkedTasks.append((i,self.taskModel.item(i).checkState()))
+            i += 1
+        self.taskModWindow = TaskProperties(self.backendInterface, task)
+        self.taskModWindow.exec_()
+        self.refreshTaskList()
+        for task in checkedTasks:
+            self.taskModel.item(task[0]).setCheckState(task[1])
     
     # internal functions
     def getFirstChecked(self):
@@ -78,20 +109,40 @@ class MainWindow(QWidget):
         self.taskModel = model
         self.ui.taskList.setModel(model)
 
-class TaskProperties(QWidget):
+class TaskProperties(QDialog):
     def __init__(self, backendInterface, task):
-        QWidget.__init__(self)
+        QDialog.__init__(self)
 
+        # internal use data
         self.backendInterface = backendInterface
+        self.taskId = task
+        self.data = backendInterface.getTask({'id': task})
 
+        # initialize UI
         self.ui = Ui_TaskProperties()
         self.ui.setupUi(self)
+        
+        # get data for task and fill in form
+        self.ui.nameEntry.setText(self.data['name'] if 'name' in self.data else '')
 
         # connect buttons
         self.ui.discardButton.clicked.connect(self.close)
         self.ui.saveButton.clicked.connect(self.saveProperties)
     def saveProperties(self, event):
-        print "here"
+        self.backendInterface.saveTask({'name': self.ui.nameEntry.text(), 'id': self.taskId})
+        self.close()
+    def addStatus(self, event):
+        pass
+    def deleteStatus(self, event):
+        pass
+    def modifyStatus(self, event):
+        pass
+    def addSchedule(self, event):
+        pass
+    def deleteSchedule(self, event):
+        pass
+    def modifySchedule(self, event):
+        pass
 
 def main():
     app = QApplication(sys.argv)
