@@ -7,7 +7,7 @@ from django.http import HttpResponse
 def taskView(request):
     context = {}
     if request.method == 'POST':
-        context['task'] = request.form['task']}
+        context['task'] = request.form['task']
     return render(request, 'tasks/modify.html', context)
 
 def userView(request):
