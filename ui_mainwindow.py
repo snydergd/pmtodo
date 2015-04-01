@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Fri Mar 27 08:15:25 2015
+# Created: Fri Mar 27 15:31:32 2015
 #      by: PyQt4 UI code generator 4.10.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -38,6 +38,8 @@ class Ui_MainWindow(object):
         self.completeButton.setObjectName(_fromUtf8("completeButton"))
         self.horizontalLayout.addWidget(self.completeButton)
         self.modifyButton = QtGui.QPushButton(MainWindow)
+        self.modifyButton.setAutoDefault(True)
+        self.modifyButton.setDefault(True)
         self.modifyButton.setObjectName(_fromUtf8("modifyButton"))
         self.horizontalLayout.addWidget(self.modifyButton)
         self.verticalLayout_2.addLayout(self.horizontalLayout)

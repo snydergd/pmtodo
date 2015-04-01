@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'taskProperties.ui'
 #
-# Created: Fri Mar 27 14:28:46 2015
+# Created: Fri Mar 27 15:31:43 2015
 #      by: PyQt4 UI code generator 4.10.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -52,9 +52,6 @@ class Ui_TaskProperties(object):
         self.schedDelButton = QtGui.QPushButton(TaskProperties)
         self.schedDelButton.setObjectName(_fromUtf8("schedDelButton"))
         self.horizontalLayout_2.addWidget(self.schedDelButton)
-        self.schedModButton = QtGui.QPushButton(TaskProperties)
-        self.schedModButton.setObjectName(_fromUtf8("schedModButton"))
-        self.horizontalLayout_2.addWidget(self.schedModButton)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.label_3 = QtGui.QLabel(TaskProperties)
         self.label_3.setObjectName(_fromUtf8("label_3"))
@@ -77,6 +74,8 @@ class Ui_TaskProperties(object):
         self.horizontalLayout_4 = QtGui.QHBoxLayout()
         self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
         self.saveButton = QtGui.QPushButton(TaskProperties)
+        self.saveButton.setAutoDefault(True)
+        self.saveButton.setDefault(True)
         self.saveButton.setObjectName(_fromUtf8("saveButton"))
         self.horizontalLayout_4.addWidget(self.saveButton)
         self.discardButton = QtGui.QPushButton(TaskProperties)
@@ -93,7 +92,6 @@ class Ui_TaskProperties(object):
         self.label_2.setText(_translate("TaskProperties", "Schedules", None))
         self.schedAddButton.setText(_translate("TaskProperties", "Add", None))
         self.schedDelButton.setText(_translate("TaskProperties", "Delete", None))
-        self.schedModButton.setText(_translate("TaskProperties", "Modify", None))
         self.label_3.setText(_translate("TaskProperties", "Statuses", None))
         self.statAddButton.setText(_translate("TaskProperties", "Add", None))
         self.statDelButton.setText(_translate("TaskProperties", "Delete", None))

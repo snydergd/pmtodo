@@ -13,50 +13,38 @@ import os.path as path
 from copy import deepcopy
 
 # Option Parsing
-class MultipleOption(Option):
-    ACTIONS = Option.ACTIONS + ("extend",)
-    STORE_ACTIONS = Option.STORE_ACTIONS + ("extend",)
-    TYPED_ACTIONS = Option.TYPED_ACTIONS + ("extend",)
-    ALWAYS_TYPED_ACTIONS = Option.ALWAYS_TYPED_ACTIONS + ("extend",)
+def parse_argv():
+    class MultipleOption(Option):
+        ACTIONS = Option.ACTIONS + ("extend",)
+        STORE_ACTIONS = Option.STORE_ACTIONS + ("extend",)
+        TYPED_ACTIONS = Option.TYPED_ACTIONS + ("extend",)
+        ALWAYS_TYPED_ACTIONS = Option.ALWAYS_TYPED_ACTIONS + ("extend",)
 
-    def take_action(self, action, dest, opt, value, values, parser):
-        if action == "extend":
-            values.ensure_value(dest, []).append(value)
-        else:
-            Option.take_action(self, action, dest, opt, value, values, parser)
+        def take_action(self, action, dest, opt, value, values, parser):
+            if action == "extend":
+                values.ensure_value(dest, []).append(value)
+            else:
+                Option.take_action(self, action, dest, opt, value, values, parser)
 
-parser = OptionParser(option_class=MultipleOption, usage="usage: %prog [todo_file] [options]")
-parser.add_option('-t', '--todo', dest="new_tasks", action="extend", metavar="ITEM", help="new item to add to todo list")
-parser.add_option('-d', '--display', dest="show_tasks", action="store_true", help="list items on the todo list")
-parser.add_option('-s', '--status', dest="status", help="update or select a status")
-parser.add_option('-j', '--job', dest="job", type="string", help="job to do something with")
-parser.add_option('-c', '--closes-job', dest="job_closed", action="store_true", help="status update closes the todo list item (use with -s)")
-parser.add_option('-a', '--show-all', dest="show_all", action="store_true", help="Whether to show all tasks, or only the pending ones")
-parser.add_option('-r', '--remove', dest="remove", action="store_true", help="remove the selected job or status")
-parser.add_option('', '--add-repeat', dest="new_repeat", help='create a repeat (use format "name (<n>-<year|month|week|day|hour|minute>[, ...])")')
-parser.add_option('-l', '--list-repeats', dest="list_repeats", action="store_true", help='show a list of current repeats to use in scheduling')
-parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a "start_date (repeat name)" for a -j')
-parser.add_option('', '--log', dest="log_distance", metavar="DAYS", help="show the last DAYS worth of statuses")
-parser.add_option('', '--short', dest="short_output", action="store_true", help="Dump a simple output consisting of just the tasks")
-parser.add_option('', '--pm', dest="pm_only", action="store_true", help="When combined with --log, show only completed repeating tasks (preventative maintenance)")
-parser.add_option('', '--old', dest="old_status", metavar="DATE", help="To be used with -s or -c, gives the date it happened (for missed records)")
+    parser = OptionParser(option_class=MultipleOption, usage="usage: %prog [todo_file] [options]")
+    parser.add_option('-t', '--todo', dest="new_tasks", action="extend", metavar="ITEM", help="new item to add to todo list")
+    parser.add_option('-d', '--display', dest="show_tasks", action="store_true", help="list items on the todo list")
+    parser.add_option('-s', '--status', dest="status", help="update or select a status")
+    parser.add_option('-j', '--job', dest="job", type="string", help="job to do something with")
+    parser.add_option('-c', '--closes-job', dest="job_closed", action="store_true", help="status update closes the todo list item (use with -s)")
+    parser.add_option('-a', '--show-all', dest="show_all", action="store_true", help="Whether to show all tasks, or only the pending ones")
+    parser.add_option('-r', '--remove', dest="remove", action="store_true", help="remove the selected job or status")
+    parser.add_option('', '--add-repeat', dest="new_repeat", help='create a repeat (use format "name (<n>-<year|month|week|day|hour|minute>[, ...])")')
+    parser.add_option('-l', '--list-repeats', dest="list_repeats", action="store_true", help='show a list of current repeats to use in scheduling')
+    parser.add_option('-S', '--schedule-job', dest="job_schedule", help='schedule a "start_date (repeat name)" for a -j')
+    parser.add_option('', '--log', dest="log_distance", metavar="DAYS", help="show the last DAYS worth of statuses")
+    parser.add_option('', '--short', dest="short_output", action="store_true", help="Dump a simple output consisting of just the tasks")
+    parser.add_option('', '--pm', dest="pm_only", action="store_true", help="When combined with --log, show only completed repeating tasks (preventative maintenance)")
+    parser.add_option('', '--old', dest="old_status", metavar="DATE", help="To be used with -s or -c, gives the date it happened (for missed records)")
 
-(options, args) = parser.parse_args()
-
-# process job flag
-if options.job != None:
-    try:
-        options.job = [int(x) for x in options.job.split(',')]
-    except (e):
-        print "Invalid -j syntax, should be <int>[,<int>[,<int>...]]"
-        options.job = None
+    return parser.parse_args()
 
 # configuration
-if len(args) > 0:
-    dataFileName = args[0]
-else:
-    dataFileName = path.join(path.expanduser('~'), 'todo.py.yaml')
-
 INVALID_JOB_MESSAGE = "Invalid job id, the ID is in parenthesis to the left of a job when you run this script with -d"
 INVALID_JOB_SCHEDULE_FORMAT = "Invalid job schedule format.  See help for -S"
 
@@ -204,8 +192,8 @@ def preprocess_data(storeData):
                     changedData = True
     return changedData
 
-# main
-def main(storeData):
+# main functionality
+def perform_actions(storeData, options):
     usedOptions = False
     changedData = False
     # new task
@@ -430,23 +418,42 @@ def main(storeData):
     return changedData
 
 # execution start
-if not path.exists(dataFileName):
-    print "File %s doesn't exist. Create it?" % dataFileName
-    sys.stdout.flush()
-    if raw_input().lower() in ['yes', 'y', 'sure', 'ok', '1']:
-        open(dataFileName, 'a').close()
-        print "File created!"
-    else:
-        print "No valid file to read from/write to. Quiting"
-        sys.exit()
-inf = open(dataFileName, 'r')
-storeData = yaml.load(inf)
-inf.close()
-if storeData == None:
-    storeData = {}
+def loadData(dataFileName):
+    if not path.exists(dataFileName):
+        print "File %s doesn't exist. Create it?" % dataFileName
+        sys.stdout.flush()
+        if raw_input().lower() in ['yes', 'y', 'sure', 'ok', '1']:
+            open(dataFileName, 'a').close()
+            print "File created!"
+        else:
+            print "No valid file to read from/write to. Quiting"
+            sys.exit()
+    inf = open(dataFileName, 'r')
+    storeData = yaml.load(inf)
+    inf.close()
+    if storeData == None:
+        storeData = {}
+    return storeData
 
-changedData = preprocess_data(storeData)
-if main(storeData) or changedData: # Whether or not it did anything with the data
-    outf = open(dataFileName, 'w')
-    outf.write(yaml.dump(storeData, default_flow_style=False, indent=4))
-    outf.close()
+if __name__ == '__main__':
+    (options, args) = parse_argv()
+    # process job flag
+    if options.job != None:
+        try:
+            options.job = [int(x) for x in options.job.split(',')]
+        except (e):
+            print "Invalid -j syntax, should be <int>[,<int>[,<int>...]]"
+            options.job = None
+
+    if len(args) > 0:
+        dataFileName = args[0]
+    else:
+        dataFileName = path.join(path.expanduser('~'), 'todo.py.yaml')
+
+    storeData = loadData(dataFileName)
+    changedData = preprocess_data(storeData)
+
+    if perform_actions(storeData, options) or changedData: # Whether or not it did anything with the data
+        outf = open(dataFileName, 'w')
+        outf.write(yaml.dump(storeData, default_flow_style=False, indent=4))
+        outf.close()

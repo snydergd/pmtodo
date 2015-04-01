@@ -8,13 +8,15 @@ from ui_taskproperties import Ui_TaskProperties
 class BackendInterface:
     stuff = [{'name': 'hi', 'id': 20}, {'name': 'bob', 'id': 21}, {'name': 'how', 'id': 22}, {'name': 'are', 'id': 23}, {'name': 'you', 'id': 24}]
     @staticmethod
-    def taskList():
-        return BackendInterface.stuff
-    @staticmethod
     def completeTasks(task_ids):
         item_ids = sorted(task_ids, reverse=True)
         for item in item_ids:
             del BackendInterface.stuff[item]
+    
+    # TASK related
+    @staticmethod
+    def taskList():
+        return BackendInterface.stuff
     @staticmethod
     def saveTask(data):
         if not 'id' in data:
@@ -32,7 +34,15 @@ class BackendInterface:
             if item['id'] == data['id']:
                 return item
         return False
-            
+    @staticmethod
+    def getTaskSchedules(task):
+        return BackendInterface.stuff['schedule'] if 'schedule' in BackendInterface.stuff else []
+    @staticmethod
+    def addTaskSchedule(task, schedule):
+        pass
+    @staticmethod
+    def deleteTaskSchedule(task, schedule):
+        pass
 
 class MainWindow(QWidget):
     def __init__(self, backendInterface):
