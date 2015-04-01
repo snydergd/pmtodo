@@ -1,0 +1,9 @@
+{% extends "base_generic.html" %}
+
+{% block body %}
+<p>Welcome to
+{% if task %}task{{ task }}
+{% else %}the task view page
+{% endif %}
+</p>
+{% endblock %}
