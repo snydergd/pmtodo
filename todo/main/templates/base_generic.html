@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
         <title>Tasks - {% block title %}Main{% endblock %}</title>
-        {% block extra_head %}{% endblock %}
+        <script type="text/javascript" src="{% static "js/jquery-1.11.2.min.js" %}"></script>
+        {% block header %}{% endblock %}
     </head>
     <body>
         {% block body %}

@@ -14,11 +14,15 @@ class Repeat(models.Model):
     month = models.IntegerField(default=-1)
     year = models.IntegerField(default=-1)
 
+class Schedule(models.Model):
+    repeat = models.ForeignKey(Repeat)
+    start_date = models.DateTimeField('Date from which to repeat')
+
 class Task(models.Model):
     name = models.CharField('Name of task', max_length=200)
     desc = models.CharField('What is involved', max_length=300)
     date_create = models.DateTimeField('Date created')
-    schedules = models.ManyToManyField(Repeat, through='Schedule')
+#    schedules = models.ManyToManyField(Schedule)
     
     def nextScheduledTime(self):
         schedules = Schedule.objects.get(task__pk=self.pk)
@@ -54,11 +58,6 @@ class Task(models.Model):
             if last < next_occurance:
                 next_occurance = last
         return next_occurance
-
-class Schedule(models.Model):
-    task = models.ForeignKey(Task)
-    repeat = models.ForeignKey(Repeat)
-    start_date = models.DateTimeField('Date from which to repeat')
 
 class Status(models.Model):
     task = models.ForeignKey(Task)

@@ -1,9 +1,33 @@
 {% extends "base_generic.html" %}
 
+{% block header %}
+        <script type="text/javascript">
+            $(function () {
+                $("#close").click(function () {
+                    
+                });
+            });
+        </script>
+{% endblock %}
+
 {% block body %}
-<p>Welcome to
-{% if task %}task{{ task }}
-{% else %}the task view page
-{% endif %}
-</p>
+        <h2>{{ task.name }} -- {{ task.id }}</h2>
+        <h6>{{ task.date_created }}</h6>
+        <form action="modify.html" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ task.id }}">
+            <p>
+                Name: <input type="text" name="name" value="{{ task.name }}"><br>
+                Description: <textarea name="desc">{{ task.desc }}</textarea><br>
+                Schedules: <select name="schedules" multiple>
+                    {% for schedule in all_schedules %}
+                    <option value="{{ schedule.pk }}">{{ schedule.repeat.name }} from {{ schedule.start_date }}</option>
+                    {% endfor %}
+                </select><br>
+            </p>
+            <p>
+                <input type="submit" value="Save">
+                <input type="button" value="Cancel">
+            </p>
+        </form>
 {% endblock %}
