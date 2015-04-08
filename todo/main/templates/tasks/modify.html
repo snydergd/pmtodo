@@ -3,17 +3,17 @@
 {% block header %}
         <script type="text/javascript">
             $(function () {
-                $("#close").click(function () {
-                    
+                $("#cancel").click(function () {
+                    window.location.href="list.html";
                 });
             });
         </script>
 {% endblock %}
 
 {% block body %}
-        <h2>{{ task.name }} -- {{ task.id }}</h2>
+        <h2>{% if task %}Task {{ task.id }} -- {{ task.name }}{% else %}Create Task{% endif %}</h2>
         <h6>{{ task.date_created }}</h6>
-        <form action="modify.html" method="POST">
+        <form action="?" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ task.id }}">
             <p>
@@ -27,7 +27,8 @@
             </p>
             <p>
                 <input type="submit" value="Save">
-                <input type="button" value="Cancel">
+                <input type="submit" name="closeafter" value="Save and Close">
+                <input type="button" value="Cancel" id="cancel">
             </p>
         </form>
 {% endblock %}

@@ -10,5 +10,6 @@
         {% block body %}
         <p>Welcome to this new page!  Content will arrive soon.</p>
         {% endblock %}
+        {% if debug %}<div class="debug">{{ debug }}</div>{% endif %}
     </body>
 </html>

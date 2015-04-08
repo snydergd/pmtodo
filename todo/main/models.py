@@ -21,9 +21,9 @@ class Schedule(models.Model):
 class Task(models.Model):
     name = models.CharField('Name of task', max_length=200)
     desc = models.CharField('What is involved', max_length=300)
-    date_create = models.DateTimeField('Date created')
-#    schedules = models.ManyToManyField(Schedule)
-    
+    date_created = models.DateTimeField('Date created', default=datetime.now, blank=True)
+    schedules = models.ManyToManyField(Schedule)
+
     def nextScheduledTime(self):
         schedules = Schedule.objects.get(task__pk=self.pk)
         next_occurance = datetime.min
