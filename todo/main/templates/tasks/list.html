@@ -1,0 +1,21 @@
+{% extends "base_generic.html" %}
+
+{% block body %}
+        <h2>Task List</h2>
+        <a href="modify.html">Create New</a><br>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+            {% for task in task_list %}
+            <tr>
+                <td>{{ task.name }}</td>
+                <td>
+                    <a href="/tasks/modify.html?id={{ task.pk }}">Edit</a>
+                    <a href="?action=delete&id={{ task.pk }}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+{% endblock %}
