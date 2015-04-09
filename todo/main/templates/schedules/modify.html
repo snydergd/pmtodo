@@ -11,19 +11,17 @@
 {% endblock %}
 
 {% block body %}
-        <h2>{% if task %}Task {{ task.id }} -- {{ task.name }}{% else %}Create Task{% endif %}</h2>
-        <h6>{{ task.date_created }}</h6>
+        <h2>{% if schedule %}Schedule {{ schedule.id }}{% else %}Create Schedule{% endif %}</h2>
         <form action="?" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="id" value="{{ task.id }}">
+            <input type="hidden" name="id" value="{{ schedule.id }}">
             <p>
-                Name: <input type="text" name="name" value="{{ task.name }}"><br>
-                Description: <textarea name="desc">{{ task.desc }}</textarea><br>
-                Schedules: <select name="schedules" multiple>
-                    {% for schedule in all_schedules %}
-                    <option value="{{ schedule.pk }}">{{ schedule.repeat.name }} from {{ schedule.start_date }}</option>
+                Repeat: <select name="repeat_id">
+                    {% for repeat in all_repeats %}
+                    <option value="{{ repeat.id }}"{% if schedule.repeat == repeat %} selected{% endif %}>{{ repeat.name }}</option>
                     {% endfor %}
                 </select><br>
+                Start Date: <input type="date" name="start_date" value="{{ schedule.start_date }}"><br>
             </p>
             <p>
                 <input type="submit" value="Save">

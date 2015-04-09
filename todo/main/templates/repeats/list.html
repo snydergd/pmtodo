@@ -1,0 +1,29 @@
+{% extends "base_generic.html" %}
+
+{% block body %}
+        <h2>Repeat List</h2>
+        <a href="/repeats/modify.html">Create New</a><br>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Week</th>
+                <th>Day</th>
+                <th>Actions</th>
+            </tr>
+            {% for repeat in repeat_list %}
+            <tr>
+                <td>{{ repeat.name }}</td>
+                <td>{{ repeat.year }}</td>
+                <td>{{ repeat.month }}</td>
+                <td>{{ repeat.week }}</td>
+                <td>{{ repeat.day }}</td>
+                <td>
+                    <a href="/repeats/modify.html?id={{ repeat.pk }}">Edit</a>
+                    <a href="?action=delete&id={{ repeat.pk }}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+{% endblock %}

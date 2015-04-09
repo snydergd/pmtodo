@@ -9,6 +9,7 @@ class Repeat(models.Model):
     # year of -1 means ignore year of dates
     # year of 0 means dates with same year
     # year of n>0 means dates in year and every nth year after
+    name = models.CharField('e.g. monthly', max_length=200, default='')
     day = models.IntegerField(default=-1)
     week = models.IntegerField(default=-1)
     month = models.IntegerField(default=-1)
