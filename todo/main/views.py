@@ -47,20 +47,17 @@ def taskList(request):
     return genericListView(request, Task, {}, 'task')
     
 def repeatView(request):
+    instance = None
     if request.GET and 'id' in request.GET and request.GET['id'].isdigit():
         instance = Repeat.objects.get(pk=request.GET['id'])
     elif request.POST and 'id' in request.POST and request.POST['id'].isdigit():
-        instance = Repeat.objects.get(pk=form.cleaned_data['id'])
-    else:
-        instance = None
+        instance = Repeat.objects.get(pk=request.POST['id'])
     if request.method == "POST":
         form = RepeatForm(request.POST, instance=instance)
         if form.is_valid():
             instance = form.save()
-            form.id = instance.id
     else:
         form = RepeatForm(instance=instance)
-    form.id = 2222
     return render(request, 'repeats/modify.html', {'form': form.as_p(), 'repeat': instance})
 
 def repeatList(request):
