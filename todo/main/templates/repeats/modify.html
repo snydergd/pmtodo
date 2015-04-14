@@ -12,16 +12,9 @@
 
 {% block body %}
         <h2>{% if repeat %}Repeat {{ repeat.id }} -- {{ repeat.name }}{% else %}Create Repeat{% endif %}</h2>
-        <form action="?" method="POST">
+        <form action="" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="id" value="{{ repeat.id }}">
-            <p>
-                Name: <input type="text" name="name" value="{{ repeat.name }}"><br>
-                Year: <input type="number" name="year" value="{{ repeat.year }}"><br>
-                Month: <input type="number" name="month" value="{{ repeat.month }}"><br>
-                Week: <input type="number" name="week" value="{{ repeat.week }}"><br>
-                Day: <input type="number" name="day" value="{{ repeat.day }}"><br>
-            </p>
+            {{ form }}
             <p>
                 <input type="submit" value="Save">
                 <input type="submit" name="closeafter" value="Save and Close">
