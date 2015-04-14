@@ -11,20 +11,11 @@
 {% endblock %}
 
 {% block body %}
-        <h2>{% if task %}Task {{ task.id }} -- {{ task.name }}{% else %}Create Task{% endif %}</h2>
-        <h6>{{ task.date_created }}</h6>
+        <h2>{% if obj %}Task {{ obj.id }} -- {{ obj.name }}{% else %}Create Task{% endif %}</h2>
+        <h6>{{ obj.date_created }}</h6>
         <form action="?" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="id" value="{{ task.id }}">
-            <p>
-                Name: <input type="text" name="name" value="{{ task.name }}"><br>
-                Description: <textarea name="desc">{{ task.desc }}</textarea><br>
-                Schedules: <select name="schedules" multiple>
-                    {% for schedule in all_schedules %}
-                    <option value="{{ schedule.pk }}">{{ schedule.repeat.name }} from {{ schedule.start_date }}</option>
-                    {% endfor %}
-                </select><br>
-            </p>
+            {{ form }}
             <p>
                 <input type="submit" value="Save">
                 <input type="submit" name="closeafter" value="Save and Close">

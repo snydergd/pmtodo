@@ -11,18 +11,11 @@
 {% endblock %}
 
 {% block body %}
-        <h2>{% if schedule %}Schedule {{ schedule.id }}{% else %}Create Schedule{% endif %}</h2>
+        <h2>{% if obj %}Schedule {{ obj.id }}{% else %}Create Schedule{% endif %}</h2>
         <form action="?" method="POST">
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ schedule.id }}">
-            <p>
-                Repeat: <select name="repeat_id">
-                    {% for repeat in all_repeats %}
-                    <option value="{{ repeat.id }}"{% if schedule.repeat == repeat %} selected{% endif %}>{{ repeat.name }}</option>
-                    {% endfor %}
-                </select><br>
-                Start Date: <input type="date" name="start_date" value="{{ schedule.start_date }}"><br>
-            </p>
+            {{ form }}
             <p>
                 <input type="submit" value="Save">
                 <input type="submit" name="closeafter" value="Save and Close">

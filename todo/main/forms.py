@@ -5,12 +5,14 @@ from main.models import Task, Schedule, Repeat
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['name', 'desc', 'date_created', 'schedules']
+        fields = ['id', 'name', 'desc', 'date_created', 'schedules']
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        fields = ['repeat', 'start_date']
+        fields = ['id', 'repeat', 'start_date']
+    id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
 class RepeatForm(forms.ModelForm):
     class Meta:

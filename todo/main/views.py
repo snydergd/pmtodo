@@ -2,11 +2,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from main.models import Task, Repeat, Schedule
-from main.forms import RepeatForm
+from main.forms import RepeatForm, ScheduleForm, TaskForm
 
 # Create your views here.
 
-def genericModView(request, t, context, typeName, foreign={}):
+# TODO: delete this
+def genericModViewNoForm(request, t, context, typeName, foreign={}):
     if request.method == 'POST':
         data = request.POST
         obj = None
@@ -29,6 +30,24 @@ def genericModView(request, t, context, typeName, foreign={}):
         context[typeName] = t.objects.get(pk=int(request.GET['id']))
     return render(request, typeName + 's/modify.html', context)
 
+def genericModView(request, obj_class, form_class, template, context={}):
+    instance = None
+    if request.GET and 'id' in request.GET and request.GET['id'].isdigit():
+        instance = obj_class.objects.get(pk=request.GET['id'])
+    elif request.POST and 'id' in request.POST and request.POST['id'].isdigit():
+        instance = obj_class.objects.get(pk=request.POST['id'])
+    if request.method == "POST":
+        form = form_class(request.POST, instance=instance)
+        if form.is_valid():
+            instance = form.save()
+        if 'closeafter' in data:
+            return redirect(typeName + 's/list.html')
+    else:
+        form = form_class(instance=instance)
+    context['form'] = form.as_p();
+    context['obj'] = instance;
+    return render(request, template, {'form': form.as_p(), 'obj': instance})
+
 def genericListView(request, t, context, typeName):
     if request.method == "GET":
         data = request.GET
@@ -41,24 +60,13 @@ def genericListView(request, t, context, typeName):
 def taskView(request):
     context = {}
     context['all_schedules'] = Schedule.objects.all()
-    return genericModView(request, Task, context, 'task')
+    return genericModView(request, Task, TaskForm, 'tasks/modify.html')
 
 def taskList(request):
     return genericListView(request, Task, {}, 'task')
     
 def repeatView(request):
-    instance = None
-    if request.GET and 'id' in request.GET and request.GET['id'].isdigit():
-        instance = Repeat.objects.get(pk=request.GET['id'])
-    elif request.POST and 'id' in request.POST and request.POST['id'].isdigit():
-        instance = Repeat.objects.get(pk=request.POST['id'])
-    if request.method == "POST":
-        form = RepeatForm(request.POST, instance=instance)
-        if form.is_valid():
-            instance = form.save()
-    else:
-        form = RepeatForm(instance=instance)
-    return render(request, 'repeats/modify.html', {'form': form.as_p(), 'repeat': instance})
+    return genericModView(request, Repeat, RepeatForm, 'repeats/modify.html')
 
 def repeatList(request):
     return genericListView(request, Repeat, {}, 'repeat')
@@ -66,7 +74,7 @@ def repeatList(request):
 def scheduleView(request):
     context = {}
     context['all_repeats'] = Repeat.objects.all()
-    return genericModView(request, Schedule, context, 'schedule', foreign={'repeat': Repeat})
+    return genericModView(request, Schedule, ScheduleForm, 'schedules/modify.html', context)
 
 def scheduleList(request):
     return genericListView(request, Schedule, {}, 'schedule')
