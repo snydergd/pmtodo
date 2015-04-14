@@ -3,7 +3,6 @@ from dateutil.relativedelta import relativedelta
 from copy import deepcopy
 from django.db import models
 
-# Create your models here.
 
 class Repeat(models.Model):
     # year of -1 means ignore year of dates
@@ -15,9 +14,16 @@ class Repeat(models.Model):
     month = models.IntegerField(default=-1)
     year = models.IntegerField(default=-1)
 
+
 class Schedule(models.Model):
     repeat = models.ForeignKey(Repeat)
     start_date = models.DateTimeField('Date from which to repeat')
+    
+    def __unicode__(self):
+        # TODO: Describe when it occurs rather than start date
+        #  e.g. every monday
+        return self.repeat.name + ' from ' +self.start_date.strftime('%b %dst, %Y')
+
 
 class Task(models.Model):
     name = models.CharField('Name of task', max_length=200)
@@ -59,6 +65,7 @@ class Task(models.Model):
             if last < next_occurance:
                 next_occurance = last
         return next_occurance
+
 
 class Status(models.Model):
     task = models.ForeignKey(Task)
