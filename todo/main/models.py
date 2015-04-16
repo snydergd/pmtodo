@@ -14,6 +14,8 @@ class Repeat(models.Model):
     month = models.IntegerField(default=-1)
     year = models.IntegerField(default=-1)
 
+    def __unicode__(self):
+        return self.name
 
 class Schedule(models.Model):
     repeat = models.ForeignKey(Repeat)

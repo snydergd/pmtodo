@@ -2,6 +2,7 @@
 from django import forms
 from main.models import Task, Schedule, Repeat
 
+        
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
