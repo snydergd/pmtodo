@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from main.models import Task, Repeat, Schedule
 from main.forms import RepeatForm, ScheduleForm, TaskForm
+from datetime import datetime
 
 # Create your views here.
 
@@ -40,7 +41,7 @@ def genericModView(request, obj_class, form_class, template, context={}):
         form = form_class(request.POST, instance=instance)
         if form.is_valid():
             instance = form.save()
-        if 'closeafter' in data:
+        if 'closeafter' in request.GET:
             return redirect(typeName + 's/list.html')
     else:
         form = form_class(instance=instance)
@@ -75,6 +76,12 @@ def scheduleView(request):
     context = {}
     context['all_repeats'] = Repeat.objects.all()
     return genericModView(request, Schedule, ScheduleForm, 'schedules/modify.html', context)
+
+def dueTaskList(request):
+    context = {}
+    context['task_list'] = Task.objects.filter(next_date__lt=datetime.now())
+    context['debug'] = Task.objects.all()[0].next_date
+    return render(request, 'tasks/list.html', context)
 
 def scheduleList(request):
     return genericListView(request, Schedule, {}, 'schedule')
