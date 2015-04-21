@@ -47,7 +47,7 @@ class Task(models.Model):
         else:
             after = self.date_created
         for schedule in schedules:
-            last = schedule.start_date
+            last = deepcopy(schedule.start_date)
             r = schedule.repeat
             last_unit = 'start'
             if r.year > 0:
@@ -72,11 +72,14 @@ class Task(models.Model):
                     last += relativedelta(days=days_to_now - days_to_now % r.day)
                 else:
                     if last_unit == 'week':
-                        last += relativedelta(days=schedule.start_date.weekday()-last.weekday())
+                        diff = abs(schedule.start_date.weekday()-last.weekday())
+                        if diff < 0 and int((last-diff)/7) < int(last/7):
+                            diff += 7
+                        last += relativedelta(days=diff)
             if last < next_occurance:
                 next_occurance = last
         return next_occurance
-
+    
     def __unicode__(self):
         return self.name
 
@@ -90,11 +93,17 @@ class Status(models.Model):
 
 @receiver(m2m_changed, sender=Task.schedules.through)
 @receiver(post_save, sender=Status)
+@receiver(post_save, sender=Schedule)
 def update_next_date(sender, **kwargs):
-    if sender == Task.schedules.through:
-        task = kwargs['instance']
+    if sender == Schedule:
+        # update all statuses using this schedule
+        tasks = kwargs['instance'].task_set.all()
+    elif sender == Task.schedules.through:
+        tasks = [kwargs['instance']]
         if not kwargs['action'] in ['post_add', 'post_remove', 'post_clear']:
             return
     else:
-        task = kwargs['instance'].task
-    task.next_date = task.next_scheduled_time()
+        tasks = [kwargs['instance'].task]
+    for task in tasks:
+        task.next_date = task.next_scheduled_time()
+        task.save()
