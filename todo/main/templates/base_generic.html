@@ -4,13 +4,17 @@
         <meta charset="UTF-8">
         <title>Tasks - {% block title %}Main{% endblock %}</title>
         <script type="text/javascript" src="{% static "js/jquery-1.11.2.min.js" %}"></script>
-        {% block head %}{% endblock %}
+        <link rel="stylesheet" type="text/css" href="{% static "css/main.css" %}">
+        {% block header %}{% endblock %}
     </head>
     <body>
         <div id="nav"><a href="/tasks/">Tasks</a> <a href="/schedules/">Schedules</a> <a href="/repeats/">Repeats</a></div>
+        
+        <div id="content">
         {% block body %}
         <p>Welcome to this new page!  Content will arrive soon.</p>
         {% endblock %}
         {% if debug %}<div class="debug">{{ debug }}</div>{% endif %}
+        </div>
     </body>
 </html>

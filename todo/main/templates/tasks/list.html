@@ -1,19 +1,18 @@
 {% extends "base_generic.html" %}
 
-{% block head %}
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+{% block header %}
         <script type="text/javascript">
             $(function() {
                 $("#itemList").delegate(".completeButton", "click", function (event) {
                     var row = $(this).parents("tr").first();
 
+                    $("#completeDialog form")[0].reset();
                     $("#completeDialog form #id_task").val(row.attr("id"));
                     $("#completeDialog :input").prop("disabled", false);
-                    $("#completeDialog").insertAfter(row).show();
+                    $("#completeDialog").insertAfter(row).toggle();
                 });
                 $("body").delegate("#submitComplete", "click", function (event) {
-//                    $("#completeDialog :input").prop("disabled", true);
-                    console.log($("#completeDialog form").serialize());
+                    $("#completeDialog :input").prop("disabled", true);
                     $.post("due.html", $("#completeDialog form").serialize(), function (data) {
                         if (data == "OK") {
                             if ($("#completeDialog #id_complete").is(":checked")) {
@@ -27,24 +26,37 @@
                     });
                     event.preventDefault();
                 });
+                $(".delButton").each(function(i, el) {
+                    // change these links to use javascript
+                    // this keeps it working if the browser doesn't support JS
+                    $(el).data("url", el.href);
+                    el.href = "javascript:void(null)";
+                });
+                $("body").delegate(".delButton", "click", function (event) {
+                    name = $(this).parents("tr").children().first().html();
+                    if (confirm("Are you sure you want to delete " + name + "?")) {
+                        window.location.href = $(this).data("url");
+                    }
+                });
             });
         </script>
         <style type="text/css">
             #completeDialog td {
-                border: 1px solid blue;
                 background-color: lightgrey;
-                padding: 5px;
+                padding: 10px 5px;
             }
         </style>
 {% endblock %}
 
 {% block body %}
         <p>
-            <a href="/tasks/">All</a>
-            <a href="/tasks/due.html">Due Items Only</a>
+            <a href="/tasks/" class="button">All</a>
+            <a href="/tasks/due.html" class="button">Due Items Only</a>
         </p>
         <h2>Task List</h2>
-        <a href="/tasks/modify.html">Create New</a><br>
+        <p>
+            <a href="/tasks/modify.html" class="button">Create New</a><br>
+        </p>
         <table id="itemList">
             <tr>
                 <th>Name</th>
@@ -54,9 +66,9 @@
             <tr id="{{ task.id }}">
                 <td>{{ task.name }}</td>
                 <td>
-                    <a href="/tasks/modify.html?id={{ task.pk }}">Edit</a>
-                    <a href="?action=delete&id={{ task.pk }}">Delete</a>
-                    <a href="javascript:void(null)" class="completeButton">Complete</a>
+                    <a href="/tasks/modify.html?id={{ task.pk }}" class="button">Edit</a>
+                    <a href="?action=delete&id={{ task.pk }}" class="button delButton">Delete</a>
+                    <a href="javascript:void(null)" class="completeButton button">Post Status</a>
                 </td>
             </tr>
             {% endfor %}
@@ -65,7 +77,7 @@
                     <form action="due.html" method="POST">
                         {% csrf_token %}
                         {{ statForm }}
-                        <button id="submitComplete">Complete</button>
+                        <button id="submitComplete">Post</button>
                     </form>
                 </td>
             </tr>

@@ -73,6 +73,12 @@ def taskList(request, showDue=False):
             return HttpResponse("OK")
         else:
             return HttpResponse("IVForm" + ', '.join([str(f.errors) for f in form]) + str(request.POST))
+    elif request.method == "GET":
+        data = request.GET
+        if 'action' in data:
+            if data['action'] == 'delete' and 'id' in data and data['id'].isdigit():
+                Task.objects.get(pk=data['id']).delete()
+                return redirect("/tasks/")
     context['statForm'] = StatusFormBasic().as_p()
     if showDue:
         context['task_list'] = Task.objects.filter(next_date__lt=datetime.now())

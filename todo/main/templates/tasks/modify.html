@@ -22,4 +22,19 @@
                 <input type="button" value="Close" id="discard">
             </p>
         </form>
+        <h3>Statuses</h3>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Text</th>
+                <th>Completed</th>
+            </tr>
+            {% for status in obj.status_set.all %}
+            <tr>
+                <td>{{ status.date }}</td>
+                <td>{{ status.text }}</td>
+                <td>{{ status.complete }}</td>
+            </tr>
+            {% endfor %}
+        </table>
 {% endblock %}

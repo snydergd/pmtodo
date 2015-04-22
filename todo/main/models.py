@@ -35,7 +35,7 @@ class Task(models.Model):
     name = models.CharField('Name of task', max_length=200)
     desc = models.CharField('What is involved', max_length=300)
     date_created = models.DateTimeField('Date created', default=timezone.now, blank=True)
-    schedules = models.ManyToManyField(Schedule)
+    schedules = models.ManyToManyField(Schedule, blank=True)
     next_date = models.DateTimeField('Cached date of next occurance', default=timezone.now, blank=True)
     
     def next_scheduled_time(self):
@@ -46,6 +46,10 @@ class Task(models.Model):
             after = completions[0].date
         else:
             after = self.date_created
+            if schedules.count() == 0:
+                # if this task is on-time and hasn't been completed
+                # then set next_occurance to creation date so it shows as incomplete
+                next_occurance = self.date_created
         for schedule in schedules:
             last = deepcopy(schedule.start_date)
             r = schedule.repeat
