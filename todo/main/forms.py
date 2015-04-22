@@ -1,6 +1,6 @@
 
 from django import forms
-from main.models import Task, Schedule, Repeat
+from main.models import Task, Schedule, Repeat, Status
 
         
 class TaskForm(forms.ModelForm):
@@ -20,3 +20,11 @@ class RepeatForm(forms.ModelForm):
         model = Repeat
         fields = ['id', 'name', 'day', 'week', 'month', 'year']
     id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
+class StatusFormBasic(forms.ModelForm):
+    class Meta:
+        model = Status
+        fields = ['text', 'complete', 'task']
+        widgets = {
+            'task': forms.HiddenInput()
+        }

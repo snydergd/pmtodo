@@ -1,21 +1,73 @@
 {% extends "base_generic.html" %}
 
+{% block head %}
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $("#itemList").delegate(".completeButton", "click", function (event) {
+                    var row = $(this).parents("tr").first();
+
+                    $("#completeDialog form #id_task").val(row.attr("id"));
+                    $("#completeDialog :input").prop("disabled", false);
+                    $("#completeDialog").insertAfter(row).show();
+                });
+                $("body").delegate("#submitComplete", "click", function (event) {
+//                    $("#completeDialog :input").prop("disabled", true);
+                    console.log($("#completeDialog form").serialize());
+                    $.post("due.html", $("#completeDialog form").serialize(), function (data) {
+                        if (data == "OK") {
+                            if ($("#completeDialog #id_complete").is(":checked")) {
+                                $("tr#" + $("#completeDialog #id_task").val()).remove();
+                            }
+                            $("#completeDialog :input").prop("disabled", false);
+                            $("#completeDialog").hide();
+                        } else {
+                            alert("Invalid information!");
+                        }
+                    });
+                    event.preventDefault();
+                });
+            });
+        </script>
+        <style type="text/css">
+            #completeDialog td {
+                border: 1px solid blue;
+                background-color: lightgrey;
+                padding: 5px;
+            }
+        </style>
+{% endblock %}
+
 {% block body %}
+        <p>
+            <a href="/tasks/">All</a>
+            <a href="/tasks/due.html">Due Items Only</a>
+        </p>
         <h2>Task List</h2>
         <a href="/tasks/modify.html">Create New</a><br>
-        <table>
+        <table id="itemList">
             <tr>
                 <th>Name</th>
                 <th>Actions</th>
             </tr>
             {% for task in task_list %}
-            <tr>
+            <tr id="{{ task.id }}">
                 <td>{{ task.name }}</td>
                 <td>
                     <a href="/tasks/modify.html?id={{ task.pk }}">Edit</a>
                     <a href="?action=delete&id={{ task.pk }}">Delete</a>
+                    <a href="javascript:void(null)" class="completeButton">Complete</a>
                 </td>
             </tr>
             {% endfor %}
+            <tr id="completeDialog" style="display:none">
+                <td colspan="2">
+                    <form action="due.html" method="POST">
+                        {% csrf_token %}
+                        {{ statForm }}
+                        <button id="submitComplete">Complete</button>
+                    </form>
+                </td>
+            </tr>
         </table>
 {% endblock %}

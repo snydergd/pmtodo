@@ -2,7 +2,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from main.models import Task, Repeat, Schedule
-from main.forms import RepeatForm, ScheduleForm, TaskForm
+from main.forms import RepeatForm, ScheduleForm, TaskForm, StatusFormBasic
+from django.utils.html import strip_tags
 from datetime import datetime
 
 # Create your views here.
@@ -47,7 +48,7 @@ def genericModView(request, obj_class, form_class, template, context={}):
         form = form_class(instance=instance)
     context['form'] = form.as_p();
     context['obj'] = instance;
-    return render(request, template, {'form': form.as_p(), 'obj': instance})
+    return render(request, template, context)
 
 def genericListView(request, t, context, typeName):
     if request.method == "GET":
@@ -63,8 +64,21 @@ def taskView(request):
     context['all_schedules'] = Schedule.objects.all()
     return genericModView(request, Task, TaskForm, 'tasks/modify.html')
 
-def taskList(request):
-    return genericListView(request, Task, {}, 'task')
+def taskList(request, showDue=False):
+    context = {}
+    if request.POST:
+        form = StatusFormBasic(request.POST)
+        if form.is_valid():
+            instance = form.save()
+            return HttpResponse("OK")
+        else:
+            return HttpResponse("IVForm" + ', '.join([str(f.errors) for f in form]) + str(request.POST))
+    context['statForm'] = StatusFormBasic().as_p()
+    if showDue:
+        context['task_list'] = Task.objects.filter(next_date__lt=datetime.now())
+    else:
+        context['task_list'] = Task.objects.all()
+    return render(request, 'tasks/list.html', context)
     
 def repeatView(request):
     return genericModView(request, Repeat, RepeatForm, 'repeats/modify.html')
@@ -78,10 +92,7 @@ def scheduleView(request):
     return genericModView(request, Schedule, ScheduleForm, 'schedules/modify.html', context)
 
 def dueTaskList(request):
-    context = {}
-    context['task_list'] = Task.objects.filter(next_date__lt=datetime.now())
-    context['debug'] = Task.objects.all()[0].next_date
-    return render(request, 'tasks/list.html', context)
+    return taskList(request, showDue=True)
 
 def scheduleList(request):
     return genericListView(request, Schedule, {}, 'schedule')

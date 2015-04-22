@@ -50,19 +50,27 @@ class Task(models.Model):
             last = deepcopy(schedule.start_date)
             r = schedule.repeat
             last_unit = 'start'
+            next = None
             if r.year > 0:
                 years_to_now = relativedelta(after, last).years
                 last += relativedelta(years=years_to_now - years_to_now % r.year)
                 last_unit = 'year'
+                next = last + relativedelta(years=r.year)
             if r.month > -1:
                 if r.month > 0:
                     months_to_now = relativedelta(after, last).months
                     last += relativedelta(months=months_to_now - months_to_now % r.month)
+                    t = last + relativedelta(months=r.month)
+                    if (next == None or t < next):
+                        next = t
                 last_unit = 'month'
             if r.week > -1:
                 if r.week > 0:
                     weeks_to_now = (after-last).days/7
                     last += relativedelta(weeks=weeks_to_now - weeks_to_now % r.week)
+                    t = last + relativedelta(weeks=r.week)
+                    if (next == None or t < next):
+                        next = t
                 elif last_unit == 'year':
                     last += relativedelta(weeks=last.isocalendar()[1]-schedule.start_date.isocalendar()[1])
                 last_unit = 'week'
@@ -70,14 +78,17 @@ class Task(models.Model):
                 if r.day > 0:
                     days_to_now = (after-last).days # relativedelta(datetime.now(), last).days
                     last += relativedelta(days=days_to_now - days_to_now % r.day)
+                    t = last + relativedelta(days=r.day)
+                    if (next == None or t < next):
+                        next = t
                 else:
                     if last_unit == 'week':
                         diff = abs(schedule.start_date.weekday()-last.weekday())
                         if diff < 0 and int((last-diff)/7) < int(last/7):
                             diff += 7
                         last += relativedelta(days=diff)
-            if last < next_occurance:
-                next_occurance = last
+            if next < next_occurance:
+                next_occurance = next
         return next_occurance
     
     def __unicode__(self):
