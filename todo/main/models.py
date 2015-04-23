@@ -91,6 +91,7 @@ class Task(models.Model):
                         if diff < 0 and int((last-diff)/7) < int(last/7):
                             diff += 7
                         last += relativedelta(days=diff)
+            if next == None: next = next_occurance
             if next < next_occurance:
                 next_occurance = next
         return next_occurance
