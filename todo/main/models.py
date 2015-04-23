@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+from math import ceil
 from copy import deepcopy
 
 from django.utils import timezone
@@ -28,7 +29,57 @@ class Schedule(models.Model):
     def __unicode__(self):
         # TODO: Describe when it occurs rather than start date
         #  e.g. every monday
-        return self.repeat.name + ' from ' +self.start_date.strftime('%b %dst, %Y')
+        r = self.repeat
+        s = ''
+        weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        def ord(n):
+            a = n % 10
+            x = 'th'
+            if a == 1: x = 'st'
+            if a == 2: x = 'nd'
+            if a == 3: x = 'rd'
+            return str(n) + x
+        if r.day == 0:
+            if r.week == 0:
+                d = int(ceil(self.start_date.day/7))
+                if d == 0: d = 1
+                s += '%s %s' % (ord(d), weekdays[self.start_date.weekday()])
+            elif r.week > 0:
+                s += "%s every %d weeks" % (weekdays[self.start_date.weekday()], r.week)
+            else:
+                s += ord(self.start_date.day) + ' day'
+        else:
+            if r.day > 0:
+                s += 'every %d days' % r.day
+            else:
+                s += 'all'
+            if r.week == 0:
+                s += ' of the %s week' % ord(ceil(self.start_date.day/7))
+            elif r.week > 0:
+                s += ' of every %d weeks' % r.week
+        if r.month == 0:
+            s += ' of ' + months[self.start_date.month]
+        elif r.month > 0:
+            s += ' of '
+            if 12 % r.month == 0:
+                if r.month == 1:
+                    s += 'the month'
+                else:
+                    for i in range(self.start_date.month, self.start_date.month+12, r.month):
+                        s += months[i%12] + ','
+                    s = s[:-1]
+            else:
+                s += 'every %d months' % r.month
+        if r.year == 0:
+            s += ' of ' + str(self.start_date.year)
+        elif r.year > 0:
+            if r. year == 1:
+                s += ' the year'
+            else:
+                s += ' of every %d years' % r.year
+        s += ' starting ' + str(self.start_date)
+        return s
 
 
 class Task(models.Model):
