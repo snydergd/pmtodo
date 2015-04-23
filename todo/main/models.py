@@ -33,10 +33,17 @@ class Schedule(models.Model):
 
 class Task(models.Model):
     name = models.CharField('Name of task', max_length=200)
-    desc = models.CharField('What is involved', max_length=300)
+    desc = models.TextField('What is involved', max_length=300, blank=True)
     date_created = models.DateTimeField('Date created', default=timezone.now, blank=True)
     schedules = models.ManyToManyField(Schedule, blank=True)
     next_date = models.DateTimeField('Cached date of next occurance', default=timezone.now, blank=True)
+    
+    def last_done(self):
+        completions = self.status_set.filter(complete=True).order_by('-date')
+        if completions.count() > 0:
+            return completions[0].date
+        else:
+            return self.date_created
     
     def next_scheduled_time(self):
         schedules = self.schedules.all()

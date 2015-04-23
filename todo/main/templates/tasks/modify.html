@@ -12,8 +12,9 @@
 
 {% block body %}
         <h2>{% if obj %}Task {{ obj.id }} -- {{ obj.name }}{% else %}Create Task{% endif %}</h2>
-        <h6>{{ obj.date_created }}</h6>
-        <form action="?" method="POST">
+        <p><span class="bold">Created:</span> {{ obj.date_created|date }}</p>
+        <p><span class="bold">Due:</span> {{ obj.next_date|date }}</p>
+        <form action="" method="POST">
             {% csrf_token %}
             {{ form }}
             <p>
@@ -33,7 +34,7 @@
             <tr>
                 <td>{{ status.date }}</td>
                 <td>{{ status.text }}</td>
-                <td>{{ status.complete }}</td>
+                <td>{% if status.complete %}Yes{% endif %}</td>
             </tr>
             {% endfor %}
         </table>

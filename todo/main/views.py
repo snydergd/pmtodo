@@ -42,8 +42,8 @@ def genericModView(request, obj_class, form_class, template, context={}):
         form = form_class(request.POST, instance=instance)
         if form.is_valid():
             instance = form.save()
-        if 'closeafter' in request.GET:
-            return redirect(typeName + 's/list.html')
+        if 'closeafter' in request.POST:
+            return redirect('list.html')
     else:
         form = form_class(instance=instance)
     context['form'] = form.as_p();
@@ -81,9 +81,9 @@ def taskList(request, showDue=False):
                 return redirect("/tasks/")
     context['statForm'] = StatusFormBasic().as_p()
     if showDue:
-        context['task_list'] = Task.objects.filter(next_date__lt=datetime.now())
+        context['task_list'] = Task.objects.filter(next_date__lt=datetime.now()).order_by("next_date")
     else:
-        context['task_list'] = Task.objects.all()
+        context['task_list'] = Task.objects.all().order_by("next_date")
     return render(request, 'tasks/list.html', context)
     
 def repeatView(request):
