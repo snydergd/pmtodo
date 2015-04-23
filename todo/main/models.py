@@ -84,7 +84,7 @@ class Schedule(models.Model):
 
 class Task(models.Model):
     name = models.CharField('Name of task', max_length=200)
-    desc = models.TextField('What is involved', max_length=300, blank=True)
+    desc = models.TextField('What is involved', max_length=300, blank=True, default='')
     date_created = models.DateTimeField('Date created', default=timezone.now, blank=True)
     schedules = models.ManyToManyField(Schedule, blank=True)
     next_date = models.DateTimeField('Cached date of next occurance', default=timezone.now, blank=True)

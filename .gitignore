@@ -1,3 +1,4 @@
 # ignore the compiled python
 *.pyc
 *.sqlite*
+main/migrations/*
