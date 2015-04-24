@@ -12,7 +12,7 @@
                     $("#completeDialog").insertAfter(row).toggle();
                 });
                 $("body").delegate("#submitComplete", "click", function (event) {
-                    $("#completeDialog :input").prop("disabled", true);
+                    console.log($("#completeDialog form"));
                     $.post("due.html", $("#completeDialog form").serialize(), function (data) {
                         if (data == "OK") {
                             if ($("#completeDialog #id_complete").is(":checked")) {
@@ -24,6 +24,7 @@
                             alert("Invalid information!");
                         }
                     });
+                    $("#completeDialog :input").prop("disabled", true);
                     event.preventDefault();
                 });
                 $(".delButton").each(function(i, el) {
@@ -78,7 +79,7 @@
             {% endfor %}
             <tr id="completeDialog" style="display:none">
                 <td colspan="4">
-                    <form action="due.html" method="POST">
+                    <form action="" method="POST">
                         {% csrf_token %}
                         {{ statForm }}
                         <button id="submitComplete">Post</button>
