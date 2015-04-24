@@ -1,4 +1,6 @@
 # ignore the compiled python
 *.pyc
 *.sqlite*
-main/migrations/*
+
+# ignore migrations
+todo/main/migrations

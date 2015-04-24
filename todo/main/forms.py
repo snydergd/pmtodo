@@ -24,7 +24,7 @@ class RepeatForm(forms.ModelForm):
 class StatusFormBasic(forms.ModelForm):
     class Meta:
         model = Status
-        fields = ['text', 'complete', 'task']
+        fields = ['text', 'complete', 'date', 'task']
         widgets = {
             'task': forms.HiddenInput()
         }
