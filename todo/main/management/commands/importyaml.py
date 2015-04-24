@@ -66,7 +66,7 @@ class Command(BaseCommand):
                                     s['dt'] = datetime.combine(s['dt'], datetime.min.time())
                                 new_s.date = timezone.make_aware(s['dt'], timezone.get_default_timezone())
                             else:
-                                new_s.date = timezone.now()
+                                new_s.date = new_t.date_created
                             if 'status' in s:
                                 new_s.text = s['status']
                             if 'closes' in s:

@@ -97,18 +97,31 @@ class Task(models.Model):
         else:
             return self.date_created
     
+    def repeat_list_str(self):
+        str = ''
+        reps = Repeat.objects.filter(schedule__task=self).distinct()
+        if reps.count() == 0:
+            return None
+        for repeat in reps:
+            str += repeat.name + ','
+        str = str[:-1]
+        return str
+
     def next_scheduled_time(self):
-        schedules = self.schedules.all()
-        next_occurance = timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
         completions = self.status_set.filter(complete=True).order_by('-date')
         if completions.count() > 0:
             after = completions[0].date
         else:
             after = self.date_created
-            if schedules.count() == 0:
-                # if this task is on-time and hasn't been completed
-                # then set next_occurance to creation date so it shows as incomplete
-                next_occurance = self.date_created
+        return self.next_occurance_after(after)
+
+    def next_occurance_after(self, after):
+        schedules = self.schedules.all()
+        next_occurance = timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
+        if after == self.date_created and schedules.count() == 0:
+            # if this task is on-time and hasn't been completed
+            # then set next_occurance to creation date so it shows as incomplete
+            next_occurance = self.date_created
         for schedule in schedules:
             last = deepcopy(schedule.start_date)
             r = schedule.repeat

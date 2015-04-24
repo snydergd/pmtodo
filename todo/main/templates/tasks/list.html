@@ -67,7 +67,7 @@
             </tr>
             {% for task in task_list %}
             <tr id="{{ task.id }}">
-                <td>{{ task.name }}</td>
+                <td>{{ task.name }} (<span class="bold">{{ task.repeat_list_str }}</span>)</td>
                 <td>{{ task.next_date|date }}</td>
                 <td>{{ task.last_done|date }}</td>
                 <td>
