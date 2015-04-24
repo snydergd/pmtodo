@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from dateutil.relativedelta import relativedelta
+from calendar import monthrange
 from math import ceil
 from copy import deepcopy
 
@@ -59,14 +60,14 @@ class Schedule(models.Model):
             elif r.week > 0:
                 s += ' of every %d weeks' % r.week
         if r.month == 0:
-            s += ' of ' + months[self.start_date.month]
+            s += ' of ' + months[self.start_date.month-1]
         elif r.month > 0:
             s += ' of '
             if 12 % r.month == 0:
                 if r.month == 1:
                     s += 'the month'
                 else:
-                    for i in range(self.start_date.month, self.start_date.month+12, r.month):
+                    for i in range(self.start_date.month-1, self.start_date.month+11, r.month):
                         s += months[i%12] + ','
                     s = s[:-1]
             else:
@@ -120,7 +121,11 @@ class Task(models.Model):
                 next = last + relativedelta(years=r.year)
             if r.month > -1:
                 if r.month > 0:
-                    months_to_now = relativedelta(after, last).months
+                    # relativedelta.months here doesn't account for several years between
+                    months_to_now = (after.year-last.year)*12 + (after.month-last.month)
+                    # account for when the months of the dates is 1 apart, but dates are more than a month apart
+                    if after.day-last.day > monthrange(last.year, last.month)[1]:
+                        months_to_now += 1
                     last += relativedelta(months=months_to_now - months_to_now % r.month)
                     t = last + relativedelta(months=r.month)
                     if (next == None or t < next):
