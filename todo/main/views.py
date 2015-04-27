@@ -1,7 +1,8 @@
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from main.models import Task, Repeat, Schedule
+from django.core.exceptions import ObjectDoesNotExist
+from main.models import Task, Repeat, Schedule, Status
 from main.forms import RepeatForm, ScheduleForm, TaskForm, StatusFormBasic
 from django.utils.html import strip_tags
 from datetime import datetime
@@ -61,18 +62,31 @@ def genericListView(request, t, context, typeName):
     
 def taskView(request):
     context = {}
+    if request.POST:
+        return HttpResponse(StatusFormBasic(request.POST).handleInput())
+
     context['all_schedules'] = Schedule.objects.all()
-    return genericModView(request, Task, TaskForm, 'tasks/modify.html')
+    # TODO: get rid of duplicate code below with genericModView
+    if request.GET:
+        if 'action' in request.GET:
+            if request.GET['action'] == 'rmstat':
+                try:
+                    s = Status.objects.get(id=request.GET['id'])
+                    s.delete()
+                    return HttpResponse("OK")
+                except ObjectDoesNotExist:
+                    return HttpResponse("Invalid status id")
+        if 'id' in request.GET and request.GET['id'].isdigit():
+            instance = Task.objects.get(pk=request.GET['id'])
+    elif request.POST and 'id' in request.POST and request.POST['id'].isdigit():
+        instance = Task.objects.get(pk=request.POST['id'])
+    context['statForm'] = StatusFormBasic(initial={'task':instance}).as_p()
+    return genericModView(request, Task, TaskForm, 'tasks/modify.html', context=context)
 
 def taskList(request, showDue=False):
     context = {}
     if request.POST:
-        form = StatusFormBasic(request.POST)
-        if form.is_valid():
-            instance = form.save()
-            return HttpResponse("OK")
-        else:
-            return HttpResponse("IVForm" + ', '.join([str(f.errors) for f in form]) + str(request.POST))
+        return HttpResponse(StatusFormBasic(request.POST).handleInput())
     elif request.method == "GET":
         data = request.GET
         if 'action' in data:

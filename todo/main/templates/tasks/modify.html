@@ -6,6 +6,37 @@
                 $("#discard").click(function () {
                     window.location.href="/tasks/list.html";
                 });
+                $("body").delegate("#submitComplete", "click", function (event) {
+                    event.preventDefault();
+                    $.post("", $("#completeDialog form").serialize(), function (data) {
+                        if (data.indexOf("OK") == 0) {
+                            // TODO: make this use another row as a template
+                            $("<tr id=\"" + data.substr(2) + "\"><td>"
+                                + $("#id_date").val() + "</td><td>"
+                                + $("#id_text").val() + "</td><td>"
+                                + ($("#id_complete").is(":checked") ? "Yes" : "") + "</td><td><a href=\"?id="
+                                + data.substr(2) + "&action=rmstat\" class=\"rmstat\">rm</a></td></tr>")
+                                .appendTo("#statusList");
+                            $("#completeDialog form")[0].reset();
+                            $("#completeDialog :input").prop("disabled", false);
+                        } else {
+                            alert("Invalid information!");
+                        }
+                    });
+                    $("#completeDialog :input").prop("disabled", true);
+                });
+                $("body").delegate(".rmstat", "click", function (event) {
+                    tr = $(this).parents("tr").first();
+                    
+                    $.get("", {"id": tr.attr("id"), "action": "rmstat"}, function (data) {
+                        if (data.indexOf("OK") == 0) {
+                            tr.remove();
+                        } else {
+                            alert("failed");
+                        }
+                    });
+                    event.preventDefault();
+                });
             });
         </script>
 {% endblock %}
@@ -24,17 +55,28 @@
             </p>
         </form>
         <h3>Statuses</h3>
-        <table>
+        <table id="statusList">
             <tr>
                 <th>Date</th>
                 <th>Text</th>
                 <th>Completed</th>
+                <th>Actions</th>
+            </tr>
+            <tr id="completeDialog">
+                <td colspan="4">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        {{ statForm }}
+                        <button id="submitComplete">Post</button>
+                    </form>
+                </td>
             </tr>
             {% for status in obj.status_set.all %}
-            <tr>
+            <tr id="{{ status.id }}">
                 <td>{{ status.date }}</td>
                 <td>{{ status.text }}</td>
                 <td>{% if status.complete %}Yes{% endif %}</td>
+                <td><a href="?id={{status.id}}&action=rmstat" class="rmstat">rm</a></td>
             </tr>
             {% endfor %}
         </table>

@@ -10,9 +10,12 @@
                     $("#completeDialog form #id_task").val(row.attr("id"));
                     $("#completeDialog :input").prop("disabled", false);
                     $("#completeDialog").insertAfter(row).toggle();
+                    event.stopPropagation();
+                });
+                $("#itemList").delegate("tr", "click", function (event) {
+                    $(this).toggleClass("highlighted");
                 });
                 $("body").delegate("#submitComplete", "click", function (event) {
-                    console.log($("#completeDialog form"));
                     $.post("due.html", $("#completeDialog form").serialize(), function (data) {
                         if (data == "OK") {
                             if ($("#completeDialog #id_complete").is(":checked")) {
@@ -45,6 +48,16 @@
             #completeDialog td {
                 background-color: lightgrey;
                 padding: 10px 5px;
+            }
+            tr {
+                padding-top: 3px;
+                padding-bottom: 2px;
+            }
+            tr.highlighted, tr.highlighted td {
+                background-color: white;
+                border: 3px solid blue;
+                padding-top: 0px;
+                padding-bottom: 0px;
             }
         </style>
 {% endblock %}

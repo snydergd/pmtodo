@@ -28,3 +28,9 @@ class StatusFormBasic(forms.ModelForm):
         widgets = {
             'task': forms.HiddenInput()
         }
+    def handleInput(self):
+        if self.is_valid():
+            instance = self.save()
+            return "OK" + str(instance.id)
+        else:
+            return "IVForm" + ", ".join([str(f.errors)+','+f.name for f in self])

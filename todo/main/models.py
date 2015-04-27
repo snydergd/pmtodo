@@ -85,7 +85,7 @@ class Schedule(models.Model):
 
 class Task(models.Model):
     name = models.CharField('Name of task', max_length=200)
-    desc = models.TextField('What is involved', max_length=300, blank=True, default='')
+    desc = models.TextField('What is involved', blank=True, default='')
     date_created = models.DateTimeField('Date created', default=timezone.now, blank=True)
     schedules = models.ManyToManyField(Schedule, blank=True)
     next_date = models.DateTimeField('Cached date of next occurance', default=timezone.now, blank=True)
@@ -178,7 +178,7 @@ class Task(models.Model):
 
 class Status(models.Model):
     task = models.ForeignKey(Task)
-    text = models.CharField('What happened', max_length=1024)
+    text = models.TextField('What happened', blank=True, default='')
     complete = models.BooleanField('Does it complete the task?', default=False)
     date = models.DateTimeField('Date of status', default=timezone.now, blank=True)
 
