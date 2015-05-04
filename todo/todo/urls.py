@@ -16,5 +16,6 @@ urlpatterns = patterns('',
     url(r'^repeats/', views.repeatList, name='repeat_list'),
     url(r'^schedules/modify.html', views.scheduleView, name='schedule_view'),
     url(r'^schedules/', views.scheduleList, name='schedule_list'),
+    url(r'^raw/', views.raw, name='raw'),
     url(r'^', views.taskList, name='task_list'),
 )

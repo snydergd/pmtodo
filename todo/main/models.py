@@ -45,20 +45,24 @@ class Schedule(models.Model):
             if r.week == 0:
                 d = int(ceil(self.start_date.day/7))
                 if d == 0: d = 1
-                s += '%s %s' % (ord(d), weekdays[self.start_date.weekday()])
+                s += '%s %s ' % (ord(d), weekdays[(self.start_date.weekday()+1)%7])
             elif r.week > 0:
-                s += "%s every %d weeks" % (weekdays[self.start_date.weekday()], r.week)
+                if r.week == 1:
+                    s += "%s every week" % weekdays[self.start_date.weekday()]
+                else:
+                    s += "%s every %d weeks" % (weekdays[self.start_date.weekday()], r.week)
             else:
                 s += ord(self.start_date.day) + ' day'
         else:
             if r.day > 0:
-                s += 'every %d days' % r.day
+                s += 'every %d days of' % r.day
             else:
-                s += 'all'
+#                s += 'all of'
+                pass
             if r.week == 0:
-                s += ' of the %s week' % ord(ceil(self.start_date.day/7))
+                s += ' the %s week' % ord(ceil(self.start_date.day/7))
             elif r.week > 0:
-                s += ' of every %d weeks' % r.week
+                s += ' every %d weeks' % r.week
         if r.month == 0:
             s += ' of ' + months[self.start_date.month-1]
         elif r.month > 0:
@@ -79,7 +83,7 @@ class Schedule(models.Model):
                 s += ' the year'
             else:
                 s += ' of every %d years' % r.year
-        s += ' starting ' + str(self.start_date)
+        s += ' starting ' + self.start_date.strftime('%Y-%m-%d')
         return s
 
 

@@ -62,7 +62,7 @@ def genericListView(request, t, context, typeName):
     
 def taskView(request):
     context = {}
-    if request.POST:
+    if request.POST and 'mod' in request.POST and request.POST['mod'] == 'stat':
         return HttpResponse(StatusFormBasic(request.POST).handleInput())
 
     context['all_schedules'] = Schedule.objects.all()
@@ -81,6 +81,7 @@ def taskView(request):
     elif request.POST and 'id' in request.POST and request.POST['id'].isdigit():
         instance = Task.objects.get(pk=request.POST['id'])
     context['statForm'] = StatusFormBasic(initial={'task':instance}).as_p()
+    context['statuses'] = instance.status_set.all().order_by('-date')
     return genericModView(request, Task, TaskForm, 'tasks/modify.html', context=context)
 
 def taskList(request, showDue=False):
@@ -119,3 +120,12 @@ def scheduleList(request):
     
 def userView(request):
     return HttpResponse("List of tasks")
+
+def raw(request):
+    raw = ''
+    tasks = Task.objects.all()
+    for task in tasks:
+        if task.schedules.count() == 0:
+            continue
+        raw += task.name + ' -- ' + ','.join([unicode(schedule) for schedule in task.schedules.all()]) + '<br>\n'
+    return HttpResponse(raw)

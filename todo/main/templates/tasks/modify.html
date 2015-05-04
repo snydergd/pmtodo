@@ -48,6 +48,7 @@
         <form action="" method="POST">
             {% csrf_token %}
             {{ form }}
+            <input type="hidden" name="mod" value="task">
             <p>
                 <input type="submit" value="Save">
                 <input type="submit" name="closeafter" value="Save and Close">
@@ -67,11 +68,12 @@
                     <form action="" method="POST">
                         {% csrf_token %}
                         {{ statForm }}
+                        <input type="hidden" name="mod" value="stat">
                         <button id="submitComplete">Post</button>
                     </form>
                 </td>
             </tr>
-            {% for status in obj.status_set.all %}
+            {% for status in statuses %}
             <tr id="{{ status.id }}">
                 <td>{{ status.date }}</td>
                 <td>{{ status.text }}</td>
