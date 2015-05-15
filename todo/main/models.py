@@ -43,7 +43,7 @@ class Schedule(models.Model):
             return str(n) + x
         if r.day == 0:
             if r.week == 0:
-                d = int(ceil(self.start_date.day/7))
+                d = int(ceil(self.start_date.day/7.0))
                 if d == 0: d = 1
                 s += '%s %s ' % (ord(d), weekdays[(self.start_date.weekday()+1)%7])
             elif r.week > 0:
@@ -60,7 +60,7 @@ class Schedule(models.Model):
 #                s += 'all of'
                 pass
             if r.week == 0:
-                s += ' the %s week' % ord(ceil(self.start_date.day/7))
+                s += ' the %s week' % ord(ceil(self.start_date.day/7.0))
             elif r.week > 0:
                 s += ' every %d weeks' % r.week
         if r.month == 0:
@@ -79,8 +79,10 @@ class Schedule(models.Model):
         if r.year == 0:
             s += ' of ' + str(self.start_date.year)
         elif r.year > 0:
-            if r. year == 1:
+            if r.year == 0:
                 s += ' the year'
+            elif r.year == 1:
+                s += ' every year'
             else:
                 s += ' of every %d years' % r.year
         s += ' starting ' + self.start_date.strftime('%Y-%m-%d')
@@ -157,6 +159,7 @@ class Task(models.Model):
                         next = t
                 elif last_unit == 'year':
                     last += relativedelta(weeks=last.isocalendar()[1]-schedule.start_date.isocalendar()[1])
+                    next += relativedelta(weeks=next.isocalendar()[1]-schedule.start_date.isocalendar()[1])
                 last_unit = 'week'
             if r.day > -1:
                 if r.day > 0:
@@ -167,10 +170,10 @@ class Task(models.Model):
                         next = t
                 else:
                     if last_unit == 'week':
-                        diff = abs(schedule.start_date.weekday()-last.weekday())
-                        if diff < 0 and int((last-diff)/7) < int(last/7):
-                            diff += 7
+                        diff = schedule.start_date.weekday()-last.weekday()
                         last += relativedelta(days=diff)
+                        diff = schedule.start_date.weekday()-next.weekday()
+                        next += relativedelta(days=diff)
             if next == None: next = next_occurance
             if next < next_occurance:
                 next_occurance = next
