@@ -26,7 +26,10 @@ class Repeat(models.Model):
 class Schedule(models.Model):
     repeat = models.ForeignKey(Repeat)
     start_date = models.DateTimeField('Date from which to repeat')
-    
+
+    class Meta:
+        ordering = ['repeat__year', 'repeat__month', 'repeat__week', 'repeat__day']
+
     def __unicode__(self):
         # TODO: Describe when it occurs rather than start date
         #  e.g. every monday
@@ -77,11 +80,10 @@ class Schedule(models.Model):
             else:
                 s += 'every %d months' % r.month
         if r.year == 0:
+            if len(s) == 0: s = 'all'
             s += ' of ' + str(self.start_date.year)
         elif r.year > 0:
-            if r.year == 0:
-                s += ' the year'
-            elif r.year == 1:
+            if r.year == 1:
                 s += ' every year'
             else:
                 s += ' of every %d years' % r.year

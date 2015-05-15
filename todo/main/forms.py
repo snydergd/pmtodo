@@ -1,13 +1,15 @@
 
 from django import forms
 from main.models import Task, Schedule, Repeat, Status
-
         
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ['id', 'name', 'desc', 'date_created', 'schedules']
     id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
+    repeat = forms.ModelChoiceField(label="New Repeat by Type", queryset=Repeat.objects.all())
+    start_date = forms.DateField(label="New Repeat start date")
 
 class ScheduleForm(forms.ModelForm):
     class Meta:
