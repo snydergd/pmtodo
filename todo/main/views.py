@@ -67,6 +67,7 @@ def taskView(request):
 
     context['all_schedules'] = Schedule.objects.all()
     # TODO: get rid of duplicate code below with genericModView
+    instance = None
     if request.GET:
         if 'action' in request.GET:
             if request.GET['action'] == 'rmstat':
@@ -81,7 +82,8 @@ def taskView(request):
     elif request.POST and 'id' in request.POST and request.POST['id'].isdigit():
         instance = Task.objects.get(pk=request.POST['id'])
     context['statForm'] = StatusFormBasic(initial={'task':instance}).as_p()
-    context['statuses'] = instance.status_set.all().order_by('-date')
+    if (instance != None):
+        context['statuses'] = instance.status_set.all().order_by('-date')
     return genericModView(request, Task, TaskForm, 'tasks/modify.html', context=context)
 
 def taskList(request, showDue=False):
