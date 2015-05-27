@@ -79,7 +79,7 @@
                 <th>Actions</th>
             </tr>
             {% for task in task_list %}
-            <tr id="{{ task.id }}">
+            <tr id="{{ task.id }}" class="{% if task.is_overdue %}overdue {% endif %}{% if task.is_one_time %}one-time {% endif %} task">
                 <td>
                     {{ task.name }} (<span class="bold">{{ task.repeat_list_str }}</span>)<br>
                     {% for schedule in task.schedules.all %}

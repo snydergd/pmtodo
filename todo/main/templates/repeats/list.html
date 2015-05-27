@@ -20,8 +20,8 @@
                 <td>{{ repeat.week }}</td>
                 <td>{{ repeat.day }}</td>
                 <td>
-                    <a href="/repeats/modify.html?id={{ repeat.pk }}">Edit</a>
-                    <a href="?action=delete&id={{ repeat.pk }}">Delete</a>
+                    <a href="/repeats/{{ repeat.pk }}">Edit</a>
+                    <a href="/repeats/{{ repeat.pk }}/delete">Delete</a>
                 </td>
             </tr>
             {% endfor %}

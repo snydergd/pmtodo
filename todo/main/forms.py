@@ -8,8 +8,8 @@ class TaskForm(forms.ModelForm):
         fields = ['id', 'name', 'desc', 'date_created', 'schedules']
     id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
-    repeat = forms.ModelChoiceField(label="New Repeat by Type", queryset=Repeat.objects.all())
-    start_date = forms.DateField(label="New Repeat start date")
+    repeat = forms.ModelChoiceField(label="New Repeat by Type", queryset=Repeat.objects.all(), required=False)
+    start_date = forms.DateField(label="New Repeat start date", required=False)
 
 class ScheduleForm(forms.ModelForm):
     class Meta:

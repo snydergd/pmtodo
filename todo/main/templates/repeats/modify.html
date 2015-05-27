@@ -20,5 +20,11 @@
                 <input type="submit" name="closeafter" value="Save and Close">
                 <input type="button" value="Close" id="discard">
             </p>
+            <h4>Used for:</h4>
+            <ul>
+            {% for task in task_list %}
+                <li>{{ task.name }}</li>
+            {% endfor %}
+            </ul>
         </form>
 {% endblock %}

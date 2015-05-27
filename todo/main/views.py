@@ -47,8 +47,8 @@ def genericModView(request, obj_class, form_class, template, context={}):
             return redirect('list.html')
     else:
         form = form_class(instance=instance)
-    context['form'] = form.as_p();
-    context['obj'] = instance;
+    context['form'] = form.as_p()
+    context['obj'] = instance
     return render(request, template, context)
 
 def genericListView(request, t, context, typeName):
@@ -66,7 +66,7 @@ def taskView(request):
         return HttpResponse(StatusFormBasic(request.POST).handleInput())
 
     context['all_schedules'] = Schedule.objects.all()
-    # TODO: get rid of duplicate code below with genericModView
+    # TODO: get rid of duplicate code below of genericModView
     instance = None
     if request.GET:
         if 'action' in request.GET:
@@ -103,8 +103,30 @@ def taskList(request, showDue=False):
         context['task_list'] = Task.objects.all().order_by("next_date")
     return render(request, 'tasks/list.html', context)
     
-def repeatView(request):
-    return genericModView(request, Repeat, RepeatForm, 'repeats/modify.html')
+def repeatView(request, repeat_id=None, action=None):
+    context = {}
+    instance = None
+    if (repeat_id != None):
+        instance = Repeat.objects.get(id=repeat_id)
+    if (action == "delete"):
+        if instance != None:
+            instance.delete()
+        return redirect('/repeats')
+    if request.method == "POST":
+        form = RepeatForm(request.POST, instance=instance)
+        if form.is_valid():
+            instance = form.save()
+        if 'closeafter' in request.POST:
+            return redirect('../list.html')
+    else:
+        form = RepeatForm(instance=instance)
+    if instance != None:
+        context['task_list'] = Task.objects.filter(schedules__repeat=instance)
+    else:
+        context['task_lsit'] = []
+    context['form'] = form.as_p()
+    context['obj'] = instance
+    return render(request, 'repeats/modify.html', context)
 
 def repeatList(request):
     return genericListView(request, Repeat, {}, 'repeat')
