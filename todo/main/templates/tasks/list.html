@@ -37,7 +37,7 @@
                     el.href = "javascript:void(null)";
                 });
                 $("body").delegate(".delButton", "click", function (event) {
-                    name = $(this).parents("tr").children().first().html();
+                    name = $(this).parents("tr").find(".nameSpan").html();
                     if (confirm("Are you sure you want to delete " + name + "?")) {
                         window.location.href = $(this).data("url");
                     }
@@ -97,7 +97,7 @@
             <tr id="{{ task.id }}" class="{% if task.is_due %}overdue {% endif %}{% if task.is_onetime %}one-time {% endif %} task">
                 <td>
                     <span class="colorIndicator">&nbsp;</span>
-                    {{ task.name }} (<span class="bold">{{ task.repeat_list_str }}</span>)<br>
+                    <span class="nameSpan">{{ task.name }}</span> (<span class="bold">{{ task.repeat_list_str }}</span>)<br>
                     {% for schedule in task.schedules.all %}
                         {{ schedule }}
                     {% endfor %}

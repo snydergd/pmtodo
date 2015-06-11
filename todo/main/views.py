@@ -84,17 +84,24 @@ def taskView(request, task_id=None, action=None):
         if instance != None:
             instance.delete()
         return redirect('/tasks')
-    context['all_schedules'] = Schedule.objects.all()
-    context['statForm'] = StatusFormBasic(initial={'task':instance}).as_p()
-    if (instance != None):
-        context['statuses'] = instance.status_set.all().order_by('-date')
     if request.method == "POST":
         form = TaskForm(request.POST, instance=instance)
-        if form.is_valid() and 'repeat' in form.cleaned_data and 'start_date' in form.cleaned_data:
-            schedule = Schedule.objects.get_or_create(repeat=form.cleaned_data['repeat'], start_date=form.cleaned_data['start_date'])
-            instance.schedules.add(schedule[0])
-    # TODO: get rid of duplicate code below of genericModView
-    return genericModView(request, Task, TaskForm, 'tasks/modify.html', context=context)
+        if form.is_valid():
+            instance = form.save()
+            if form.cleaned_data['repeat'] is not None and form.cleaned_data['start_date'] is not None:
+                schedule = Schedule.objects.get_or_create(repeat=form.cleaned_data['repeat'], start_date=form.cleaned_data['start_date'])
+                instance.schedules.add(schedule[0])
+        if 'closeafter' in request.POST:
+            return redirect('./')
+    else:
+        form = TaskForm(instance=instance)
+    context['form'] = form.as_p()
+    context['all_schedules'] = Schedule.objects.all()
+    context['statForm'] = StatusFormBasic(initial={'task':instance}).as_p()
+    context['obj'] = instance
+    if (instance != None):
+        context['statuses'] = instance.status_set.all().order_by('-date')
+    return render(request, "tasks/modify.html", context)
 
 def taskList(request, type=None):
     context = {}
