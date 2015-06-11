@@ -22,4 +22,10 @@
                 <input type="button" value="Close" id="discard">
             </p>
         </form>
+        <h3>Tasks using this</h3>
+        <ol>
+        {% for task in obj.task_set.all %}
+        <li>{{task.name}}</li>
+        {% endfor %}
+        </ol>
 {% endblock %}

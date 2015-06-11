@@ -2,17 +2,19 @@
 
 {% block body %}
         <h2>Schedule List</h2>
-        <a href="/schedules/modify.html">Create New</a><br>
+        <a href="/schedules/add" class="button">Create New</a><br>
         <table>
             <tr>
                 <th>Repeat</th>
                 <th>Start Date</th>
+                <th>Usage</th>
                 <th>Actions</th>
             </tr>
             {% for schedule in schedule_list %}
             <tr>
                 <td>{{ schedule.repeat.name }}</td>
                 <td>{{ schedule.start_date }}</td>
+                <td>{{ schedule.task_usage }}</td>
                 <td>
                     <a href="/schedules/modify.html?id={{ schedule.pk }}">Edit</a>
                     <a href="?action=delete&id={{ schedule.pk }}">Delete</a>

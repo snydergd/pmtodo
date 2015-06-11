@@ -30,6 +30,9 @@ class Schedule(models.Model):
     class Meta:
         ordering = ['repeat__year', 'repeat__month', 'repeat__week', 'repeat__day']
 
+    def task_usage(self):
+        return self.task_set.count()
+
     def __unicode__(self):
         # TODO: Describe when it occurs rather than start date
         #  e.g. every monday

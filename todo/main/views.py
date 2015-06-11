@@ -88,7 +88,11 @@ def taskView(request, task_id, action=None):
     context['statForm'] = StatusFormBasic(initial={'task':instance}).as_p()
     if (instance != None):
         context['statuses'] = instance.status_set.all().order_by('-date')
-
+    if request.method == "POST":
+        form = TaskForm(request.POST, instance=instance)
+        if form.is_valid() and 'repeat' in form.cleaned_data and 'start_date' in form.cleaned_data:
+            schedule = Schedule.objects.get_or_create(repeat=form.cleaned_data['repeat'], start_date=form.cleaned_data['start_date'])
+            instance.schedules.add(schedule[0])
     # TODO: get rid of duplicate code below of genericModView
     return genericModView(request, Task, TaskForm, 'tasks/modify.html', context=context)
 
