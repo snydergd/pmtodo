@@ -98,6 +98,12 @@ class Task(models.Model):
     schedules = models.ManyToManyField(Schedule, blank=True)
     next_date = models.DateTimeField('Cached date of next occurance', default=timezone.now, blank=True)
     
+    def is_due(self):
+        return self.next_date < timezone.now()
+
+    def is_onetime(self):
+        return self.schedules.count() == 0
+
     def last_done(self):
         completions = self.status_set.filter(complete=True).order_by('-date')
         if completions.count() > 0:

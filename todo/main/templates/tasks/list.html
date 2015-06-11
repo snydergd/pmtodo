@@ -19,7 +19,7 @@
                     $.post("due.html", $("#completeDialog form").serialize(), function (data) {
                         if (data.indexOf("OK") == 0) {
                             if ($("#completeDialog #id_complete").is(":checked")) {
-                                $("tr#" + $("#completeDialog #id_task").val()).remove();
+                                $("tr#" + $("#completeDialog #id_task").val()).appendTo("#itemList");
                             }
                             $("#completeDialog :input").prop("disabled", false);
                             $("#completeDialog").hide();
@@ -59,13 +59,28 @@
                 border-left: 4px solid blue;
                 padding-left: 2px;
             }
+            .colorIndicator {
+                border: 4px solid blue;
+                background-color: white;
+                width: 10px;
+                height: 10px;
+                display: inline-block;
+                float: left;
+                margin-right: 5px;
+            }
+            .task.overdue .colorIndicator {
+                background-color: red;
+            }
+            .task.one-time .colorIndicator {
+                border-color: black;
+            }
         </style>
 {% endblock %}
 
 {% block body %}
         <p>
             <a href="/tasks/" class="button">All</a>
-            <a href="/tasks/due.html" class="button">Due Items Only</a>
+            <a href="/tasks/due" class="button">Due Items Only</a>
         </p>
         <h2>Task List ({{ task_list.count }} items)</h2>
         <p>
@@ -79,8 +94,9 @@
                 <th>Actions</th>
             </tr>
             {% for task in task_list %}
-            <tr id="{{ task.id }}" class="{% if task.is_overdue %}overdue {% endif %}{% if task.is_one_time %}one-time {% endif %} task">
+            <tr id="{{ task.id }}" class="{% if task.is_due %}overdue {% endif %}{% if task.is_onetime %}one-time {% endif %} task">
                 <td>
+                    <span class="colorIndicator">&nbsp;</span>
                     {{ task.name }} (<span class="bold">{{ task.repeat_list_str }}</span>)<br>
                     {% for schedule in task.schedules.all %}
                         {{ schedule }}
@@ -89,7 +105,7 @@
                 <td>{{ task.next_date|date }}</td>
                 <td>{{ task.last_done|date }}</td>
                 <td>
-                    <a href="/tasks/modify.html?id={{ task.pk }}" class="button">Edit</a>
+                    <a href="/tasks/{{ task.pk }}/" class="button">Edit</a>
                     <a href="?action=delete&id={{ task.pk }}" class="button delButton">Delete</a>
                     <a href="javascript:void(null)" class="completeButton button">Post Status</a>
                 </td>

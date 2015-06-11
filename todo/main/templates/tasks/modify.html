@@ -28,7 +28,7 @@
                 $("body").delegate(".rmstat", "click", function (event) {
                     tr = $(this).parents("tr").first();
                     
-                    $.get("", {"id": tr.attr("id"), "action": "rmstat"}, function (data) {
+                    $.get("rmstat", {"id": tr.attr("id")}, function (data) {
                         if (data.indexOf("OK") == 0) {
                             tr.remove();
                         } else {
@@ -78,7 +78,7 @@
                 <td>{{ status.date }}</td>
                 <td>{{ status.text }}</td>
                 <td>{% if status.complete %}Yes{% endif %}</td>
-                <td><a href="?id={{status.id}}&action=rmstat" class="rmstat">rm</a></td>
+                <td><a href="rmstat?id={{status.id}}" class="rmstat">rm</a></td>
             </tr>
             {% endfor %}
         </table>
