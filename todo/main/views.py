@@ -64,7 +64,7 @@ def genericListView(request, t, context, typeName):
     context[typeName + '_list'] = t.objects.all()
     return render(request, typeName + 's/list.html', context)
     
-def taskView(request, task_id, action=None):
+def taskView(request, task_id=None, action=None):
     context = {}
     if request.POST and 'mod' in request.POST and request.POST['mod'] == 'stat':
         return HttpResponse(StatusFormBasic(request.POST).handleInput())
