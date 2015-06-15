@@ -34,8 +34,6 @@ class Schedule(models.Model):
         return self.task_set.count()
 
     def __unicode__(self):
-        # TODO: Describe when it occurs rather than start date
-        #  e.g. every monday
         r = self.repeat
         s = ''
         weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -54,9 +52,9 @@ class Schedule(models.Model):
                 s += '%s %s ' % (ord(d), weekdays[(self.start_date.weekday()+1)%7])
             elif r.week > 0:
                 if r.week == 1:
-                    s += "%s every week" % weekdays[self.start_date.weekday()]
+                    s += "%s every week" % weekdays[(self.start_date.weekday()+1)%7]
                 else:
-                    s += "%s every %d weeks" % (weekdays[self.start_date.weekday()], r.week)
+                    s += "%s every %d weeks" % (weekdays[(self.start_date.weekday()+1)%7], r.week)
             else:
                 s += ord(self.start_date.day) + ' day'
         else:

@@ -91,6 +91,7 @@ def taskView(request, task_id=None, action=None):
             if form.cleaned_data['repeat'] is not None and form.cleaned_data['start_date'] is not None:
                 schedule = Schedule.objects.get_or_create(repeat=form.cleaned_data['repeat'], start_date=form.cleaned_data['start_date'])
                 instance.schedules.add(schedule[0])
+                form = TaskForm(instance=instance)
         if 'closeafter' in request.POST:
             return redirect('./')
     else:
