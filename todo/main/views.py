@@ -176,5 +176,5 @@ def raw(request):
     for task in tasks:
         if task.schedules.count() == 0:
             continue
-        raw += task.name + ' -- ' + ','.join([unicode(schedule) for schedule in task.schedules.all()]) + '<br>\n'
-    return HttpResponse(raw)
+        raw += task.name + ' -- ' + ','.join([unicode(schedule) for schedule in task.schedules.all()]) + '\n'
+    return HttpResponse(raw, content_type="text/plain")
