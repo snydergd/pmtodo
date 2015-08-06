@@ -89,6 +89,7 @@
         <table id="itemList">
             <tr>
                 <th>Name</th>
+                <th>Active</th>
                 <th>Due</th>
                 <th>Last Done</th>
                 <th>Actions</th>
@@ -102,6 +103,7 @@
                         {{ schedule }}
                     {% endfor %}
                 </td>
+                <td>{{ task.next_date|date }}</td>
                 <td>{{ task.next_due|date }}</td>
                 <td>{{ task.last_done|date }}</td>
                 <td>
