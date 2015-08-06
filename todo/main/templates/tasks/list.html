@@ -102,7 +102,7 @@
                         {{ schedule }}
                     {% endfor %}
                 </td>
-                <td>{{ task.next_date|date }}</td>
+                <td>{{ task.next_due|date }}</td>
                 <td>{{ task.last_done|date }}</td>
                 <td>
                     <a href="/tasks/{{ task.pk }}/" class="button">Edit</a>

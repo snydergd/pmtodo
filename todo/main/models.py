@@ -98,6 +98,7 @@ class Task(models.Model):
     date_created = models.DateTimeField('Date created', default=timezone.now, blank=True)
     schedules = models.ManyToManyField(Schedule, blank=True)
     next_date = models.DateTimeField('Cached date of next occurance', default=timezone.now, blank=True)
+    next_due = models.DateTimeField('Cached date of next time due after completion', default=timezone.now, blank=True)
     
     def is_due(self):
         return self.next_date < timezone.now()
@@ -214,4 +215,8 @@ def update_next_date(sender, **kwargs):
         tasks = [kwargs['instance'].task]
     for task in tasks:
         task.next_date = task.next_scheduled_time()
+        try:
+            task.next_due = task.next_occurance_after(task.next_date+timedelta(days=1))
+        except OverflowError:
+            task.next_due = task.next_date
         task.save()
