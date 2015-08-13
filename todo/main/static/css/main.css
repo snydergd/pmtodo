@@ -31,7 +31,7 @@ body {
     font-weight: bold;
 }
 
-#content, #nav {
+#content, #nav, body > div {
     border-radius: 15px;
     background-color: #33CC33;
     margin: 20px auto;

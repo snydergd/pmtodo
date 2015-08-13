@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+{% block title %}
+    Status List
+{% endblock %}
+
+{% block header %}
+    {# Nothing to see here, move along. #}
+{% endblock %}
+
+{% block body %}
+    <table>
+        <tr><th>Task</th><th>Date</th><th>Completed?</th><th>Description</th></tr>
+    {% for status in statuses %}
+        <tr>
+            <td>{{ status.task.name }}</td>
+            <td>{{ status.date }}</td>
+            <td>{{ status.complete }}</td>
+            <td>{{ status.text }} </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

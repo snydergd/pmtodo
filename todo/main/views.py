@@ -170,6 +170,11 @@ def scheduleList(request):
 def userView(request):
     return HttpResponse("List of tasks")
 
+def statusList(request):
+    context = {}
+    context['statuses'] = Status.objects.all().order_by('-date')
+    return render(request, 'statuses/list.html', context)
+    
 def raw(request):
     raw = ''
     tasks = Task.objects.all()

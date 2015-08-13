@@ -8,13 +8,22 @@
         {% block header %}{% endblock %}
     </head>
     <body>
-        <div id="nav"><a href="/tasks/">Tasks</a> <a href="/schedules/">Schedules</a> <a href="/repeats/">Repeats</a></div>
+        <div id="nav">
+            <a href="/tasks/">Tasks</a>
+            <a href="/schedules/">Schedules</a>
+            <a href="/repeats/">Repeats</a>
+            <a href="/statuses/">History</a>
+        </div>
         
         <div id="content">
         {% block body %}
         <p>Welcome to this new page!  Content will arrive soon.</p>
         {% endblock %}
         {% if debug %}<div class="debug">{{ debug }}</div>{% endif %}
+        </div>
+        
+        <div id="footer">
+            <a href="/raw/">Raw Repeat List</a>
         </div>
     </body>
 </html>
