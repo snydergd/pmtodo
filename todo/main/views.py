@@ -115,10 +115,13 @@ def taskList(request, type=None):
                 Task.objects.get(pk=data['id']).delete()
                 return redirect("/tasks/")
     context['statForm'] = StatusFormBasic().as_p()
+    order_field = 'next_date'
+    if (request.GET and 'order_by' in request.GET):
+        order_field = request.GET['order_by']
     if type == "due":
-        context['task_list'] = Task.objects.filter(next_date__lt=datetime.now()).order_by("next_due")
+        context['task_list'] = Task.objects.filter(next_date__lt=datetime.now()).order_by(order_field)
     else:
-        context['task_list'] = Task.objects.all().order_by("next_due")
+        context['task_list'] = Task.objects.all().order_by(order_field)
         """context['task_list_breakdown'] = (
         "One-time due: %d\nRepeating-due: %d" % 
         (context['task_list'].annotate(schedule_count=Count('schedules')).filter(Q(next_date__lt=timezone.now())

@@ -60,19 +60,11 @@
                 padding-left: 2px;
             }
             .colorIndicator {
-                border: 4px solid blue;
-                background-color: white;
                 width: 10px;
                 height: 10px;
                 display: inline-block;
                 float: left;
                 margin-right: 5px;
-            }
-            .task.overdue .colorIndicator {
-                background-color: red;
-            }
-            .task.one-time .colorIndicator {
-                border-color: black;
             }
         </style>
 {% endblock %}
@@ -89,8 +81,8 @@
         <table id="itemList">
             <tr>
                 <th>Name</th>
-                <th>Active</th>
-                <th>Due</th>
+                <th><a href="?order_by=next_date">Active</a></th>
+                <th><a href="?order_by=next_due">Due</a></th>
                 <th>Last Done</th>
                 <th>Actions</th>
             </tr>
