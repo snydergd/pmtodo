@@ -92,8 +92,10 @@ def taskView(request, task_id=None, action=None):
                 schedule = Schedule.objects.get_or_create(repeat=form.cleaned_data['repeat'], start_date=form.cleaned_data['start_date'])
                 instance.schedules.add(schedule[0])
                 form = TaskForm(instance=instance)
+	    if (action == 'add'):
+	        return redirect('/tasks/%d/' % instance.id)
         if 'closeafter' in request.POST:
-            return redirect('./')
+            return redirect('../')
     else:
         form = TaskForm(instance=instance)
     context['form'] = form.as_p()
@@ -148,7 +150,9 @@ def repeatView(request, repeat_id=None, action=None):
         if form.is_valid():
             instance = form.save()
         if 'closeafter' in request.POST:
-            return redirect('../list.html')
+            return redirect('../')
+	if action == 'add':
+	    return redirect('%d/' % instance.id)
     else:
         form = RepeatForm(instance=instance)
     if instance != None:
