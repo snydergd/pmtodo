@@ -135,7 +135,7 @@ class Task(models.Model):
         schedules = self.schedules.all()
         next_occurance = timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
         if after == self.date_created and schedules.count() == 0:
-            # if this task is on-time and hasn't been completed
+            # if this task is one-time and hasn't been completed
             # then set next_occurance to creation date so it shows as incomplete
             next_occurance = self.date_created
         for schedule in schedules:
