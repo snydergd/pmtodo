@@ -133,12 +133,18 @@ class Task(models.Model):
 
     def next_occurance_after(self, after):
         schedules = self.schedules.all()
+        # next_occurance keeps track of soonest date from any schedule so far
         next_occurance = timezone.make_aware(timezone.datetime.max, timezone.get_default_timezone())
         if after == self.date_created and schedules.count() == 0:
             # if this task is one-time and hasn't been completed
             # then set next_occurance to creation date so it shows as incomplete
             next_occurance = self.date_created
         for schedule in schedules:
+            # The goal is to find the first occurrence of schedule after the date `after`
+            # `last` gets pushed forward from start date to find last occurrence before `after`
+            # `after` could be the last day done or today.  We want the first occurrence after it
+            # `next` is the first occurrence after `after`
+            # The order in history should be start_date..>>>last....after....next
             last = deepcopy(schedule.start_date)
             r = schedule.repeat
             last_unit = 'start'
@@ -167,9 +173,11 @@ class Task(models.Model):
                     t = last + relativedelta(weeks=r.week)
                     if (next == None or t < next):
                         next = t
-                elif last_unit == 'year':
-                    last += relativedelta(weeks=last.isocalendar()[1]-schedule.start_date.isocalendar()[1])
-                    next += relativedelta(weeks=next.isocalendar()[1]-schedule.start_date.isocalendar()[1])
+                else:
+                    if last_unit == 'year':
+                        # (last and next).isocalendar()[1] is week of year
+                        last += relativedelta(weeks=last.isocalendar()[1]-schedule.start_date.isocalendar()[1])
+                        next += relativedelta(weeks=next.isocalendar()[1]-schedule.start_date.isocalendar()[1])
                 last_unit = 'week'
             if r.day > -1:
                 if r.day > 0:
@@ -181,8 +189,12 @@ class Task(models.Model):
                 else:
                     if last_unit == 'week':
                         diff = schedule.start_date.weekday()-last.weekday()
+                        if (last.day+diff < 1):
+                            diff += 7;
                         last += relativedelta(days=diff)
                         diff = schedule.start_date.weekday()-next.weekday()
+                        if (next.day+diff < 1):
+                            diff += 7;
                         next += relativedelta(days=diff)
             if next == None: next = next_occurance
             if next < next_occurance:
